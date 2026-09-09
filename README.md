@@ -13,7 +13,7 @@ dados vêm de um pipeline em Python que qualquer pessoa consegue rodar do zero.
 
 | Seção | O que faz |
 |---|---|
-| **Hero** | Esfera de 900 pontos em canvas que segue o cursor, com inércia. Os pontos próximos do ponteiro acendem, são empurrados e se ligam em constelação; clicar propaga uma onda pela esfera. |
+| **Hero** | Campo de partículas discreto em canvas, com deriva lenta e um raio pequeno de interação com o cursor. Métricas principais ancoradas logo abaixo da chamada. |
 | **Recarga** | Animação guiada pelo scroll: o carro chega, o cabo conecta, a bateria enche. Cada quadro é desenhado a partir do progresso do scroll, então a cena anda para frente e para trás com o gesto. |
 | **Mapa** | Mapa próprio em MapLibre GL sobre tiles do OpenFreeMap, com 12 mil pontos clusterizados, filtro por estado, busca e popup. Abre centralizado em São Paulo. |
 | **Dashboards** | Gráficos SVG gerados do banco local (por estado, por rede, por faixa de potência) mais os cinco painéis Power BI oficiais da ABVE, incorporados em abas. |
@@ -39,20 +39,37 @@ coleta vigente aparece no rodapé do site.
 
 ## Identidade visual
 
-O fundo é um preto espacial (`rgb(5,6,14)`) com campo de estrelas em parallax.
-As cores **não são fixas**: cada seção declara uma paleta em `assets/js/tema.js` e,
-conforme a página rola, os acentos e o tom do fundo são interpolados continuamente
-entre a seção atual e a próxima — violeta no topo, verde na recarga, ciano no mapa,
-magenta nos modelos, e assim por diante.
+Modo escuro sóbrio, pensado para leitura de dados e não para chamar atenção:
+fundo em ardósia neutra (`rgb(16,20,24)`) e acentos em **verde sálvia**, **azul
+petróleo** e **cinza ardósia**. Cores sólidas e opacas — sem gradiente em texto,
+sem halo neon, sem botão brilhante.
 
-A troca acontece reescrevendo quatro custom properties em `:root`
-(`--a1-rgb`, `--a2-rgb`, `--a3-rgb`, `--bg-rgb`). Como a folha inteira referencia
-esses tokens, tudo acompanha sozinho: bordas, brilhos, botões, gráficos, o SVG da
-cena de recarga, os marcadores do mapa e até a cor da barra do navegador no celular.
-Para mudar a identidade de uma seção, basta editar a linha dela em `TEMAS`.
+O texto corrido usa `#b3bcc4`, que dá contraste de **9,6:1** sobre o fundo (o
+mínimo da WCAG para AAA é 7:1).
+
+As cores variam levemente por seção: cada uma declara uma paleta em
+`assets/js/tema.js` e, conforme a página rola, os acentos são interpolados entre
+a seção atual e a próxima. A variação é discreta de propósito — serve como
+orientação espacial na rolagem, não como efeito. A troca acontece reescrevendo
+quatro custom properties em `:root` (`--a1-rgb`, `--a2-rgb`, `--a3-rgb`,
+`--bg-rgb`); como a folha inteira referencia esses tokens, tudo acompanha
+sozinho. Para mudar a identidade de uma seção, edite a linha dela em `TEMAS`.
 
 As posições das seções ficam em cache e são remedidas por um `ResizeObserver`,
 então o cálculo por evento de scroll é só aritmética — sem forçar recálculo de layout.
+
+### Efeitos deliberadamente ausentes
+
+Foram removidos por serem ruído visual num produto de BI: a esfera de pontos que
+perseguia o cursor no hero, a luz radial que seguia o mouse pela página, o campo
+de estrelas com parallax e o magnetismo dos botões.
+
+O que ficou no lugar é `assets/js/particulas.js`: pontos de 1–2 px em branco de
+baixa opacidade, deriva lenta e raio de interação de 120 px. Perto do cursor eles
+se afastam de leve e se ligam por linhas finas; fora desse raio, nada acontece.
+O laço pausa quando o hero sai da tela e a deriva automática respeita
+`prefers-reduced-motion` (a resposta ao ponteiro continua, por ser ação do
+próprio usuário).
 
 ## Fontes de dados
 
@@ -106,12 +123,11 @@ python -m http.server 5173
 ```
 index.html
 assets/
-  css/styles.css          tokens de cor, hero 3D, tipografia, grid
+  css/styles.css          tokens de cor, hero, tipografia, grid
   css/components.css      cena de recarga, mapa, tabela, widget de clima
-  css/interacoes.css      estrelas, luz de cursor, magnetismo
   js/tema.js              paleta que muda conforme o scroll
-  js/interacoes.js        campo de estrelas, luz de cursor, botões magnéticos
-  js/main.js              scroll engine, parallax, tilt 3D, revelações, esfera
+  js/particulas.js        campo de partículas do hero
+  js/main.js              scroll engine, tilt 3D, revelações, contadores
   js/charging-scene.js    animação de recarga guiada pelo scroll
   js/map.js               MapLibre + OpenFreeMap
   js/weather.js           botão flutuante de clima

@@ -39,6 +39,12 @@
     var elData = document.querySelectorAll('[data-atualizado]');
     Array.prototype.forEach.call(elData, function (e) { e.textContent = s.data; });
 
+    /* métricas do hero: mesmo número da coleta, sem contador animado */
+    document.querySelectorAll('[data-metrica]').forEach(function (el) {
+      var v = s[el.dataset.metrica];
+      if (v != null) el.textContent = fmt.format(v);
+    });
+
     ranking(s.ranking_uf);
     categorias(s.por_categoria);
   }).catch(function () { /* mantem os valores estaticos do HTML */ });

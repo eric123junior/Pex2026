@@ -3,3 +3,8 @@ __pycache__/
 
 # coletas brutas: regeraveis com os scripts de etl/
 etl/raw/
+
+# artefatos locais do editor/SO
+.claude/
+Thumbs.db
+.DS_Store

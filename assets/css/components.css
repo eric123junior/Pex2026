@@ -21,8 +21,8 @@
 .chg-step.on{opacity:1;transform:none}
 .chg-step b{
   font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--ink-on-accent);
-  background:linear-gradient(100deg,var(--green),var(--cyan));
-  padding:.2rem .5rem;border-radius:7px;
+  background:var(--a1);
+  padding:.2rem .5rem;border-radius:6px;
 }
 
 .charge-hud{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap}
@@ -131,11 +131,11 @@ code{
   position:fixed;right:clamp(1rem,3vw,1.8rem);bottom:clamp(1rem,3vw,1.8rem);z-index:940;
   display:inline-flex;align-items:center;gap:.55rem;cursor:pointer;
   padding:.8rem 1.2rem;border-radius:999px;font:inherit;font-size:.9rem;font-weight:600;
-  color:var(--ink-on-accent);background:linear-gradient(100deg,var(--green),var(--cyan));border:none;
-  box-shadow:0 18px 40px -14px rgba(var(--a1-rgb),.8);
+  color:var(--ink-on-accent);background:var(--a1);border:none;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.6);
   transition:transform .3s var(--ease),box-shadow .3s var(--ease);
 }
-.clima-fab:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 24px 52px -14px rgba(var(--a1-rgb),.95)}
+.clima-fab:hover{background:color-mix(in srgb,var(--a1) 82%,#fff)}
 .clima-fab-ico{width:22px;height:22px;display:block}
 .clima-fab-ico svg{width:100%;height:100%}
 
@@ -224,8 +224,7 @@ code{
   font-family:"JetBrains Mono",monospace}
 
 .sub-grande{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;letter-spacing:-.03em}
-.sub-grande em{font-style:normal;background:linear-gradient(100deg,var(--green),var(--cyan));
-  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub-grande em{font-style:normal;color:var(--a1)}
 
 .bi-abas{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem}
 .bi-aba{
@@ -236,7 +235,7 @@ code{
 .bi-aba:hover{color:var(--ink);border-color:rgba(var(--a1-rgb),.5)}
 .bi-aba.ativa{
   color:var(--ink-on-accent);border-color:transparent;font-weight:600;
-  background:linear-gradient(100deg,var(--green),var(--cyan));
+  background:var(--a1);
 }
 .bi-palco{
   position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
@@ -287,7 +286,7 @@ code{
 .pag-btn:disabled{opacity:.35;cursor:default}
 .pag-btn.ativo{
   color:var(--ink-on-accent);font-weight:600;border-color:transparent;
-  background:linear-gradient(100deg,var(--green),var(--cyan));
+  background:var(--a1);
 }
 .pag-gap{color:var(--ink-dim);padding:0 .15rem;font-size:.85rem}
 
@@ -296,3 +295,64 @@ code{
   .pag-botoes{margin-left:0}
   .pag-info{width:100%;text-align:center}
 }
+
+/* ============================================================
+   A cena de recarga segue o acento da secao
+
+   O SVG esta inline no HTML com atributos de apresentacao, que nao
+   aceitam var(). Estas regras sobrescrevem por CSS - inclusive os
+   `stop-color` dos gradientes, que sao propriedades CSS de verdade.
+   ============================================================ */
+#cena .chao-linha,
+#c-chao g{stroke:rgba(var(--line-rgb),.28)}
+
+#c-totem rect:first-of-type{stroke:rgba(var(--line-rgb),.35)}
+#c-totem path{fill:rgb(var(--a1-rgb))}
+#c-pct{fill:rgb(var(--a1-rgb))}
+
+#c-cabo{stroke:rgba(var(--line-rgb),.35)}
+#c-fluxo{stroke:rgb(var(--a2-rgb))}
+#g-brilho stop{stop-color:rgb(var(--a1-rgb))}
+
+/* ============================================================
+   Alvos de toque
+
+   Em ponteiro grosso (dedo) os controles compactos passam a ter pelo
+   menos 44px de altura, que e o minimo confortavel recomendado pelas
+   diretrizes de acessibilidade. No mouse eles seguem discretos.
+   ============================================================ */
+@media (hover:none), (pointer:coarse){
+  .bi-aba{min-height:44px;padding-block:.7rem}
+  .pag-btn{min-width:44px;height:44px}
+  .btn.pequeno{min-height:44px}
+  .clima-x{width:40px;height:40px}
+  .clima-geo{padding:.75rem}
+  .campo select,.campo input,.clima-form input{min-height:44px}
+  .nav-links a{min-height:44px;display:flex;align-items:center}
+}
+
+/* ---------- affordance de rolagem da tabela ----------
+   Numa tela estreita a tabela rola na horizontal, mas nada indicava
+   isso. O degrade na borda direita some quando chega ao fim, usando
+   `animation-timeline: scroll()` onde ha suporte; onde nao ha, fica
+   fixo — o que ainda comunica que existe conteudo alem da borda. */
+.tabela-rolagem{position:relative}
+.tabela-rolagem::after{
+  content:"";position:absolute;top:0;right:0;bottom:0;width:44px;
+  pointer-events:none;border-radius:0 20px 20px 0;
+  background:linear-gradient(90deg,transparent,rgba(var(--bg-rgb),.9));
+}
+@supports (animation-timeline: scroll(self inline)){
+  .tabela-rolagem::after{
+    animation:sumir-borda linear both;
+    animation-timeline:scroll(self inline);
+  }
+  @keyframes sumir-borda{
+    from{opacity:1}
+    to{opacity:0}
+  }
+}
+
+/* enquanto o menu mobile esta aberto, nada flutua sobre ele */
+body.menu-aberto .clima-fab,
+body.menu-aberto .clima-painel{opacity:0;pointer-events:none;transition:opacity .2s}

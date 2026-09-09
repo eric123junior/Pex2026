@@ -4,20 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="SustAmbiTech BI — plataforma open source de inteligência de dados sobre mobilidade elétrica no Brasil: eletropostos mapeados, modelos, preços e infraestrutura de recarga.">
-<meta name="theme-color" content="#05060e">
+<meta name="theme-color" content="#101418">
 <title>SustAmbiTech BI — Mobilidade Elétrica em Dados</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=20260909i">
-<link rel="stylesheet" href="assets/css/components.css?v=20260909i">
-<link rel="stylesheet" href="assets/css/interacoes.css?v=20260909i">
+<link rel="stylesheet" href="assets/css/styles.css?v=20260910j">
+<link rel="stylesheet" href="assets/css/components.css?v=20260910j">
 </head>
 <body>
 
-<canvas id="estrelas" aria-hidden="true"></canvas>
-<div id="luz-cursor" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
 
@@ -46,31 +43,32 @@
 
 <!-- ============ HERO ============ -->
 <section class="hero" id="top">
-  <canvas id="globe" aria-hidden="true"></canvas>
-  <div class="hero-glow" data-depth="0.12" aria-hidden="true"></div>
+  <!-- campo de partículas: fica atrás de todo o conteúdo do hero -->
+  <canvas id="particulas" aria-hidden="true"></canvas>
 
-  <div class="hero-stage" data-depth="0.18">
-    <p class="eyebrow" data-depth="0.4">Business Intelligence · Open Source · Brasil</p>
-    <h1 class="hero-title" data-depth="0.16">
+  <div class="hero-stage">
+    <p class="eyebrow">Business Intelligence · Open Source · Brasil</p>
+    <h1 class="hero-title">
       <span class="line"><span>Mobilidade</span></span>
       <span class="line"><span>elétrica em</span></span>
-      <span class="line grad"><span>dados vivos</span></span>
+      <span class="line destaque"><span>dados vivos</span></span>
     </h1>
     <p class="hero-sub">
       Eletropostos mapeados ponto a ponto, preços reais de veículos eletrificados e
       painéis analíticos — tudo a partir de fontes abertas e verificáveis.
     </p>
     <div class="hero-actions">
-      <a href="#recarga" class="btn btn-primary"><span>Ver como funciona</span></a>
-      <a href="#mapa" class="btn btn-ghost"><span>Abrir o mapa</span></a>
+      <a href="#mapa" class="btn btn-primary"><span>Abrir o mapa</span></a>
+      <a href="#recarga" class="btn btn-texto"><span>Ver como funciona</span></a>
     </div>
-    <p class="hero-dica">a esfera segue o cursor · clique para propagar</p>
-  </div>
 
-  <div class="hero-cards" aria-hidden="true">
-    <div class="fcard fcard-1" data-depth="0.9"><b>12.164</b><small>eletropostos</small></div>
-    <div class="fcard fcard-2" data-depth="1.3"><b>890</b><small>ofertas de veículos</small></div>
-    <div class="fcard fcard-3" data-depth="0.7"><b>27</b><small>estados cobertos</small></div>
+    <!-- métricas ancoradas sob os botões, não soltas nas bordas -->
+    <dl class="hero-metricas">
+      <div><dt>Eletropostos</dt><dd data-metrica="total_eletropostos">12.164</dd></div>
+      <div><dt>Estados</dt><dd data-metrica="ufs_cobertas">27</dd></div>
+      <div><dt>Ofertas de veículos</dt><dd data-metrica="total_ofertas">890</dd></div>
+      <div><dt>Modelos</dt><dd data-metrica="total_modelos">113</dd></div>
+    </dl>
   </div>
 
   <div class="scroll-hint"><span></span>role para explorar</div>
@@ -106,25 +104,35 @@
       </header>
 
       <svg id="cena" class="charge-svg" viewBox="0 0 1200 500" role="img"
-           aria-label="Animação de um carro elétrico chegando a um eletroposto, conectando o cabo e carregando a bateria">
+           aria-label="Animação de uma picape elétrica que chega a um eletroposto, conecta o cabo, carrega a bateria até 100%, acende as luzes e parte">
 
         <defs>
+          <!-- aco inox escovado: faixas retas, sem brilho difuso -->
           <linearGradient id="g-carro" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#eefaf5"/>
-            <stop offset="55%" stop-color="#b9d8cd"/>
-            <stop offset="100%" stop-color="#6f8f84"/>
+            <stop offset="0%"   stop-color="#d7dde2"/>
+            <stop offset="42%"  stop-color="#aab4bc"/>
+            <stop offset="43%"  stop-color="#98a3ac"/>
+            <stop offset="100%" stop-color="#6e787f"/>
           </linearGradient>
-          <linearGradient id="g-vidro" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#2b4f5e"/>
-            <stop offset="100%" stop-color="#12262f"/>
+          <linearGradient id="g-carro-teto" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#e4e9ed"/>
+            <stop offset="100%" stop-color="#b3bdc5"/>
+          </linearGradient>
+          <linearGradient id="g-vidro" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#2a3a44"/>
+            <stop offset="100%" stop-color="#131c22"/>
+          </linearGradient>
+          <linearGradient id="g-interior" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#ffe6b8" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#ffd08a" stop-opacity=".25"/>
           </linearGradient>
           <linearGradient id="g-totem" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#123b30"/>
-            <stop offset="100%" stop-color="#07211a"/>
+            <stop offset="0%" stop-color="#242c33"/>
+            <stop offset="100%" stop-color="#151a1f"/>
           </linearGradient>
           <radialGradient id="g-brilho">
-            <stop offset="0%" stop-color="#19e08a" stop-opacity=".85"/>
-            <stop offset="100%" stop-color="#19e08a" stop-opacity="0"/>
+            <stop offset="0%" stop-opacity=".85"/>
+            <stop offset="100%" stop-opacity="0"/>
           </radialGradient>
           <radialGradient id="g-farol">
             <stop offset="0%" stop-color="#ffe9a8" stop-opacity=".95"/>
@@ -133,9 +141,9 @@
         </defs>
 
         <!-- chao -->
-        <line x1="0" y1="410" x2="1200" y2="410" stroke="rgba(120,255,205,.25)" stroke-width="2"/>
+        <line x1="0" y1="410" x2="1200" y2="410" class="chao-linha" stroke-width="2"/>
         <g id="c-chao" opacity=".6">
-          <g stroke="rgba(120,255,205,.35)" stroke-width="4" stroke-linecap="round">
+          <g stroke-width="4" stroke-linecap="round">
             <line x1="-120" y1="440" x2="-60" y2="440"/>
             <line x1="0"    y1="440" x2="60"   y2="440"/>
             <line x1="120"  y1="440" x2="180"  y2="440"/>
@@ -151,121 +159,144 @@
           </g>
         </g>
 
-        <!-- totem de recarga -->
+        <!-- totem de recarga: fica atrás da picape, que estaciona à direita dele -->
+        <g transform="translate(-796,0)">
         <g id="c-totem" opacity="0">
           <rect x="946" y="150" width="74" height="260" rx="18" fill="url(#g-totem)"
-                stroke="rgba(120,255,205,.35)" stroke-width="2"/>
-          <rect x="962" y="170" width="42" height="60" rx="9" fill="#04120e"
-                stroke="rgba(120,255,205,.28)"/>
+                stroke="rgba(var(--line-rgb),.35)" stroke-width="2"/>
+          <rect x="962" y="170" width="42" height="60" rx="9" fill="#12171b"
+                stroke="rgba(var(--line-rgb),.28)"/>
           <g id="c-tela" opacity="0">
-            <rect x="966" y="174" width="34" height="52" rx="7" fill="#0b2f26"/>
+            <rect x="966" y="174" width="34" height="52" rx="7" fill="#1a2026"/>
             <text id="c-pct" x="983" y="206" text-anchor="middle"
-                  font-family="JetBrains Mono, monospace" font-size="15" fill="#19e08a">12%</text>
+                  font-family="JetBrains Mono, monospace" font-size="15" fill="rgb(var(--a1-rgb))">12%</text>
           </g>
           <!-- simbolo de raio -->
-          <path d="M986 258 l-14 30 h11 l-7 26 20 -34 h-11 z" fill="#19e08a" opacity=".85"/>
-          <rect x="958" y="330" width="50" height="6" rx="3" fill="rgba(120,255,205,.25)"/>
-          <rect x="958" y="346" width="34" height="6" rx="3" fill="rgba(120,255,205,.18)"/>
+          <path d="M986 258 l-14 30 h11 l-7 26 20 -34 h-11 z" fill="rgb(var(--a1-rgb))" opacity=".85"/>
+          <rect x="958" y="330" width="50" height="6" rx="3" fill="rgba(var(--line-rgb),.25)"/>
+          <rect x="958" y="346" width="34" height="6" rx="3" fill="rgba(var(--line-rgb),.18)"/>
           <ellipse cx="983" cy="412" rx="58" ry="9" fill="rgba(0,0,0,.5)"/>
         </g>
+        </g>
 
-        <!-- cabo (invisivel, serve de trilho para o plugue e para o fluxo) -->
+        <!-- cabo: sai do totem (à esquerda) e chega à porta traseira da picape -->
         <path id="c-cabo"
-              d="M946 300 C 880 300, 860 372, 792 362"
-              fill="none" stroke="#0d3a2e" stroke-width="9" stroke-linecap="round" opacity="0"/>
+              d="M224 300 C 258 300, 284 316, 316 306"
+              fill="none" stroke="#2a3238" stroke-width="9" stroke-linecap="round" opacity="0"/>
         <path id="c-fluxo"
-              d="M946 300 C 880 300, 860 372, 792 362"
-              fill="none" stroke="#3ddcff" stroke-width="4" stroke-linecap="round" opacity="0"/>
+              d="M224 300 C 258 300, 284 316, 316 306"
+              fill="none" stroke="#7fd4e8" stroke-width="4" stroke-linecap="round" opacity="0"/>
 
-        <!-- carro -->
+        <!-- ============================================================
+             Cybertruck em vista lateral.
+
+             O desenho é feito de retas: duas linhas longas definem toda a
+             silhueta — uma sobe do para-choque até o ápice do teto, a
+             outra desce dali até a traseira. Nada de curva na carroceria,
+             que é o que caracteriza o exoesqueleto de inox.
+
+             A picape foi desenhada apontando para a esquerda e é espelhada
+             pelo grupo interno `translate(1060,0) scale(-1,1)`, para andar
+             no mesmo sentido em que se move (da esquerda para a direita).
+             Espelhar por transform evita reescrever as duas dezenas de
+             coordenadas do traçado — e as sombras, que são simétricas,
+             ficam de fora do espelho.
+             ============================================================ -->
         <g id="c-carro">
           <!-- brilho sob o carro enquanto carrega -->
-          <ellipse id="c-brilho" cx="490" cy="412" rx="230" ry="26" fill="url(#g-brilho)" opacity="0"/>
-          <ellipse cx="490" cy="410" rx="215" ry="12" fill="rgba(0,0,0,.55)"/>
+          <ellipse id="c-brilho" cx="530" cy="412" rx="270" ry="26" fill="url(#g-brilho)" opacity="0"/>
+          <ellipse cx="530" cy="410" rx="256" ry="12" fill="rgba(0,0,0,.55)"/>
 
-          <!-- feixe do farol -->
-          <ellipse id="c-farol" cx="215" cy="330" rx="120" ry="34" fill="url(#g-farol)" opacity="0"/>
+        <g transform="translate(1060,0) scale(-1,1)">
+          <!-- feixe do farol, projetado à frente -->
+          <ellipse id="c-farol" cx="176" cy="330" rx="130" ry="30" fill="url(#g-farol)" opacity="0"/>
 
-          <!-- carroceria -->
-          <path d="M282 372
-                   C 268 372, 258 360, 260 344
-                   L 266 306
-                   C 270 288, 284 278, 302 276
-                   L 372 268
-                   L 424 216
-                   C 436 202, 454 194, 474 194
-                   L 592 194
-                   C 614 194, 634 204, 646 222
-                   L 682 272
-                   L 736 284
-                   C 762 290, 778 308, 778 330
-                   L 778 350
-                   C 778 364, 768 372, 754 372
-                   Z"
-                fill="url(#g-carro)" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
+          <!-- carroceria: a cunha -->
+          <path d="M256 356 L250 320 L292 300 L556 196 L770 272 L810 296 L810 356 Z"
+                fill="url(#g-carro)"/>
+          <!-- plano do teto/caçamba, um tom mais claro para dar volume -->
+          <path d="M556 196 L770 272 L742 276 L548 206 Z" fill="url(#g-carro-teto)"/>
 
-          <!-- vidros -->
-          <path d="M446 266 L 486 216 C 492 208, 500 206, 510 206 L 556 206 L 556 266 Z" fill="url(#g-vidro)"/>
-          <path d="M572 206 L 592 206 C 606 206, 618 212, 626 224 L 654 266 L 572 266 Z" fill="url(#g-vidro)"/>
+          <!-- recortes angulares das caixas de roda -->
+          <path d="M312 356 L328 328 L396 328 L412 356 Z" fill="#151a1f"/>
+          <path d="M642 356 L658 328 L726 328 L742 356 Z" fill="#151a1f"/>
 
-          <!-- vinco lateral -->
-          <path d="M300 320 L 742 320" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+          <!-- vidros: um único painel triangular, do capô à caçamba -->
+          <path id="c-vidros" d="M436 252 L556 208 L676 252 L676 264 L436 264 Z" fill="url(#g-vidro)"/>
+          <!-- luz de cortesia da cabine, acesa ao dar a partida -->
+          <path id="c-interior" d="M448 250 L556 214 L664 250 L664 262 L448 262 Z"
+                fill="url(#g-interior)" opacity="0"/>
+          <line x1="560" y1="212" x2="560" y2="264" stroke="rgba(20,28,34,.75)" stroke-width="3"/>
 
-          <!-- farol e lanterna -->
-          <path d="M266 306 L 300 302 L 300 320 L 264 320 Z" fill="#ffe9a8" opacity=".92"/>
-          <path d="M760 300 L 778 306 L 778 322 L 760 322 Z" fill="#ff6b6b" opacity=".85"/>
+          <!-- vincos e recortes de porta -->
+          <path d="M256 312 L810 312" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+          <path d="M470 264 L470 352 M612 264 L612 352"
+                stroke="rgba(30,38,44,.5)" stroke-width="2"/>
 
-          <!-- porta de recarga -->
+          <!-- barra de luz dianteira, de ponta a ponta -->
+          <line id="c-barra-frente" x1="252" y1="318" x2="292" y2="300"
+                stroke="#ffe9a8" stroke-width="6" stroke-linecap="round" opacity=".25"/>
+          <!-- barra de luz traseira -->
+          <line id="c-barra-tras" x1="772" y1="276" x2="808" y2="296"
+                stroke="#ff6b6b" stroke-width="5" stroke-linecap="round" opacity=".25"/>
+
+          <!-- porta de recarga, na traseira -->
           <g>
-            <rect x="700" y="296" width="30" height="26" rx="6" fill="#0c211b"
-                  stroke="rgba(120,255,205,.6)" stroke-width="1.5"/>
-            <circle cx="715" cy="309" r="6" fill="none" stroke="#19e08a" stroke-width="1.6"/>
+            <rect x="726" y="292" width="28" height="24" rx="4" fill="#161c21"
+                  stroke="rgba(var(--a1-rgb),.6)" stroke-width="1.5"/>
+            <circle cx="740" cy="304" r="6" fill="none" stroke="rgb(var(--a1-rgb))" stroke-width="1.6"/>
           </g>
 
           <!-- rodas -->
           <g>
-            <circle cx="352" cy="372" r="46" fill="#0a1512" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-            <circle cx="352" cy="372" r="24" fill="#16241f"/>
-            <g id="c-roda1">
-              <rect x="349" y="350" width="6" height="44" rx="3" fill="rgba(200,255,235,.5)"/>
-              <rect x="330" y="369" width="44" height="6" rx="3" fill="rgba(200,255,235,.5)"/>
+            <circle cx="360" cy="370" r="42" fill="#20272d" stroke="rgba(226,232,240,.35)" stroke-width="2.5"/>
+            <circle cx="360" cy="370" r="22" fill="#38424b"/>
+            <!-- 6 raios (3 barras a 60°) leem como roda; 2 barras formavam
+                 um "+" sempre que a rotação parava num múltiplo de 90° -->
+            <g id="c-roda1" fill="rgba(226,232,240,.7)">
+              <rect x="357" y="349" width="6" height="42" rx="1"/>
+              <rect x="357" y="349" width="6" height="42" rx="1" transform="rotate(60 360 370)"/>
+              <rect x="357" y="349" width="6" height="42" rx="1" transform="rotate(120 360 370)"/>
             </g>
           </g>
           <g>
-            <circle cx="636" cy="372" r="46" fill="#0a1512" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-            <circle cx="636" cy="372" r="24" fill="#16241f"/>
-            <g id="c-roda2">
-              <rect x="633" y="350" width="6" height="44" rx="3" fill="rgba(200,255,235,.5)"/>
-              <rect x="614" y="369" width="44" height="6" rx="3" fill="rgba(200,255,235,.5)"/>
+            <circle cx="690" cy="370" r="42" fill="#20272d" stroke="rgba(226,232,240,.35)" stroke-width="2.5"/>
+            <circle cx="690" cy="370" r="22" fill="#38424b"/>
+            <g id="c-roda2" fill="rgba(226,232,240,.7)">
+              <rect x="687" y="349" width="6" height="42" rx="1"/>
+              <rect x="687" y="349" width="6" height="42" rx="1" transform="rotate(60 690 370)"/>
+              <rect x="687" y="349" width="6" height="42" rx="1" transform="rotate(120 690 370)"/>
             </g>
           </g>
 
-          <!-- indicador de bateria flutuando sobre o carro -->
-          <g transform="translate(430,0)">
-            <rect x="0" y="146" width="46" height="62" rx="8" fill="rgba(4,18,14,.85)"
-                  stroke="rgba(120,255,205,.45)" stroke-width="2"/>
-            <rect x="16" y="138" width="14" height="8" rx="3" fill="rgba(120,255,205,.45)"/>
-            <rect id="c-bateria-nivel" x="4" y="150" width="38" height="0" rx="5" fill="#19e08a"/>
+        </g><!-- fim do espelho -->
+
+          <!-- indicador de bateria: fora do espelho, senão o desenho inverteria -->
+          <g transform="translate(508,0)">
+            <rect x="0" y="118" width="46" height="62" rx="6" fill="rgba(16,20,24,.88)"
+                  stroke="rgba(var(--line-rgb),.45)" stroke-width="2"/>
+            <rect x="16" y="110" width="14" height="8" rx="2" fill="rgba(var(--line-rgb),.45)"/>
+            <rect id="c-bateria-nivel" x="4" y="122" width="38" height="0" rx="3" fill="#ffd166"/>
           </g>
         </g>
 
         <!-- plugue, posicionado ao longo do cabo -->
         <g id="c-plugue" opacity="0">
           <g transform="translate(-13,-11)">
-            <rect x="0" y="0" width="26" height="22" rx="6" fill="#0e2b23"
-                  stroke="#19e08a" stroke-width="2"/>
-            <circle cx="9" cy="11" r="3" fill="#19e08a"/>
-            <circle cx="18" cy="11" r="3" fill="#19e08a"/>
+            <rect x="0" y="0" width="26" height="22" rx="3" fill="#1b2228"
+                  stroke="rgb(var(--a1-rgb))" stroke-width="2"/>
+            <circle cx="9" cy="11" r="3" fill="rgb(var(--a1-rgb))"/>
+            <circle cx="18" cy="11" r="3" fill="rgb(var(--a1-rgb))"/>
           </g>
         </g>
       </svg>
 
       <!-- legendas que trocam conforme a fase -->
       <div class="charge-steps">
-        <p class="chg-step on"><b>01</b> O veículo chega ao ponto de recarga.</p>
-        <p class="chg-step"><b>02</b> O conector CCS2 encaixa na porta do carro.</p>
+        <p class="chg-step on"><b>01</b> A picape chega ao ponto de recarga.</p>
+        <p class="chg-step"><b>02</b> O conector encaixa na porta traseira.</p>
         <p class="chg-step"><b>03</b> A energia flui e a bateria enche.</p>
-        <p class="chg-step"><b>04</b> Pronto para 427 km de autonomia.</p>
+        <p class="chg-step"><b>04</b> Desconecta, liga e segue com 547 km de autonomia.</p>
       </div>
 
       <dl class="charge-hud">
@@ -282,7 +313,7 @@
 <section class="section" id="dashboards">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="tag">01 — Inteligência</p>
+      <p class="tag">Painéis de mercado</p>
       <h2>Dashboards <em>interativos</em></h2>
       <p class="lead">Duas camadas: gráficos gerados do nosso próprio banco e os painéis
         oficiais da ABVE, incorporados direto da fonte.</p>
@@ -353,7 +384,7 @@
 <section class="section map-sec" id="mapa">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="tag">02 — Infraestrutura</p>
+      <p class="tag">Onde carregar</p>
       <h2>Mapa de <em>recarga</em> interativo</h2>
       <p class="lead">Mapa próprio, renderizado com MapLibre GL sobre tiles do OpenFreeMap.
         Clique num ponto para ver operador, conectores e potência.</p>
@@ -375,9 +406,9 @@
     <div class="mapa-moldura reveal">
       <div id="mapa-gl"></div>
       <div class="mapa-legenda" aria-hidden="true">
-        <span><i style="background:#3ddcff"></i>≥ 100 kW</span>
-        <span><i style="background:#19e08a"></i>22–99 kW</span>
-        <span><i style="background:#c7f94b"></i>&lt; 22 kW ou não informado</span>
+        <span><i style="background:rgb(var(--a2-rgb))"></i>≥ 100 kW</span>
+        <span><i style="background:rgb(var(--a1-rgb))"></i>22–99 kW</span>
+        <span><i style="background:rgb(var(--a3-rgb))"></i>&lt; 22 kW ou não informado</span>
       </div>
     </div>
     <p class="mapa-status" id="mapa-status">Carregando o mapa…</p>
@@ -410,7 +441,7 @@
 <section class="section" id="modelos">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="tag">03 — Mercado</p>
+      <p class="tag">Quanto custa</p>
       <h2>Modelos, <em>preços</em> e conectores</h2>
       <p class="lead">Preço médio calculado sobre as ofertas coletadas. A coluna de referência
         internacional traz o MSRP em dólar convertido pela cotação do dia da coleta.</p>
@@ -460,7 +491,7 @@
 <section class="section" id="categorias">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="tag">04 — Taxonomia</p>
+      <p class="tag">Como se classificam</p>
       <h2>As <em>5 categorias</em> ABVE</h2>
       <p class="lead">Números da coleta atual. Passe o cursor, toque ou use o teclado para virar cada cartão e ver a definição.</p>
     </header>
@@ -594,7 +625,7 @@
 <section class="section" id="servicos">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="tag">05 — Plataforma</p>
+      <p class="tag">Recursos</p>
       <h2>O que a plataforma <em>entrega</em></h2>
     </header>
     <div class="svc tilt-scene">
@@ -612,7 +643,7 @@
 <section class="section" id="fontes">
   <div class="wrap two">
     <div class="reveal">
-      <p class="tag">06 — Procedência</p>
+      <p class="tag">De onde vêm os dados</p>
       <h2>Fontes de <em>dados</em></h2>
       <ul class="list">
         <li><b>carregados.com.br</b> — base principal de eletropostos, pela API pública de mapa do portal: coordenadas, rede, potência e confiabilidade.</li>
@@ -644,15 +675,38 @@
 <section class="section" id="time">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="tag">07 — Pessoas</p>
-      <h2>Time <em>multidisciplinar</em></h2>
+      <p class="tag">Quem mantém</p>
+      <h2>A equipe por trás <em>da plataforma</em></h2>
+      <p class="lead">Cinco frentes de trabalho, da coleta de dados à publicação.</p>
     </header>
-    <div class="team tilt-scene">
-      <article class="member tilt reveal"><div class="av">TL</div><h3>Tech Lead</h3><p>Arquitetura, roadmap e revisão de código.</p></article>
-      <article class="member tilt reveal"><div class="av">FS</div><h3>Full Stack</h3><p>Front-end, integrações e publicação.</p></article>
-      <article class="member tilt reveal"><div class="av">BI</div><h3>BI / Analytics</h3><p>Modelagem, medidas DAX e painéis.</p></article>
-      <article class="member tilt reveal"><div class="av">DB</div><h3>Engenharia de Dados</h3><p>Pipelines, snapshots e qualidade.</p></article>
-      <article class="member tilt reveal"><div class="av">ES</div><h3>ESG / Sustentabilidade</h3><p>Curadoria temática e impacto ambiental.</p></article>
+
+    <!-- PREENCHER: troque "Nome a definir" pelo nome de cada integrante. -->
+    <div class="team">
+      <article class="member reveal">
+        <p class="member-nome">Nome a definir</p>
+        <h3>Arquitetura e revisão de código</h3>
+        <p>Define o desenho técnico, o roadmap e revisa o que entra no repositório.</p>
+      </article>
+      <article class="member reveal">
+        <p class="member-nome">Nome a definir</p>
+        <h3>Desenvolvimento full stack</h3>
+        <p>Constrói o front-end, as integrações com as APIs e cuida da publicação.</p>
+      </article>
+      <article class="member reveal">
+        <p class="member-nome">Nome a definir</p>
+        <h3>Business intelligence</h3>
+        <p>Modela os indicadores, escreve as medidas DAX e monta os painéis.</p>
+      </article>
+      <article class="member reveal">
+        <p class="member-nome">Nome a definir</p>
+        <h3>Engenharia de dados</h3>
+        <p>Mantém os coletores, os snapshots mensais e a qualidade da base.</p>
+      </article>
+      <article class="member reveal">
+        <p class="member-nome">Nome a definir</p>
+        <h3>Sustentabilidade e ESG</h3>
+        <p>Faz a curadoria temática e a leitura de impacto ambiental dos dados.</p>
+      </article>
     </div>
   </div>
 </section>
@@ -661,7 +715,7 @@
 <section class="section" id="faq">
   <div class="wrap narrow">
     <header class="sec-head reveal">
-      <p class="tag">08 — Perguntas frequentes</p>
+      <p class="tag">Dúvidas comuns</p>
       <h2>FAQ</h2>
     </header>
     <div class="acc reveal">
@@ -761,7 +815,7 @@
 <section class="section" id="politicas">
   <div class="wrap narrow">
     <header class="sec-head reveal">
-      <p class="tag">09 — Legal</p>
+      <p class="tag">Termos e licenças</p>
       <h2>Políticas e <em>termos</em></h2>
     </header>
     <div class="acc reveal">
@@ -849,13 +903,13 @@
 </aside>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
-<script src="assets/js/tema.js?v=20260909i" defer></script>
-<script src="assets/js/interacoes.js?v=20260909i" defer></script>
-<script src="assets/js/main.js?v=20260909i" defer></script>
-<script src="assets/js/charging-scene.js?v=20260909i" defer></script>
-<script src="assets/js/data-sections.js?v=20260909i" defer></script>
-<script src="assets/js/dashboards.js?v=20260909i" defer></script>
-<script src="assets/js/map.js?v=20260909i" defer></script>
-<script src="assets/js/weather.js?v=20260909i" defer></script>
+<script src="assets/js/tema.js?v=20260910j" defer></script>
+<script src="assets/js/particulas.js?v=20260910j" defer></script>
+<script src="assets/js/main.js?v=20260910j" defer></script>
+<script src="assets/js/charging-scene.js?v=20260910j" defer></script>
+<script src="assets/js/data-sections.js?v=20260910j" defer></script>
+<script src="assets/js/dashboards.js?v=20260910j" defer></script>
+<script src="assets/js/map.js?v=20260910j" defer></script>
+<script src="assets/js/weather.js?v=20260910j" defer></script>
 </body>
 </html>

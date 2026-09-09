@@ -36,6 +36,11 @@
     burger.classList.toggle('open', open);
     burger.setAttribute('aria-expanded', String(open));
     document.body.style.overflow = open ? 'hidden' : '';
+    /* A classe no body permite esconder o que flutua sobre a pagina.
+       Subir o z-index do menu nao bastaria: ele vive dentro do .nav, que
+       ja e um contexto de empilhamento proprio — entao o botao de clima,
+       irmao do .nav, continuaria por cima. */
+    document.body.classList.toggle('menu-aberto', open);
   });
   links.addEventListener('click', function (e) {
     if (e.target.tagName === 'A' && links.classList.contains('open')) burger.click();
@@ -96,8 +101,7 @@
   var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
   var navAnchors = Array.prototype.slice.call(links.querySelectorAll('a'));
 
-  /* ---------- parallax hero + mapa 3D ---------- */
-  var depthEls = Array.prototype.slice.call(document.querySelectorAll('[data-depth]'));
+  /* ---------- scroll ---------- */
   var mapPlane = document.getElementById('mapPlane');
   var target = { y: 0 }, current = { y: 0 };
 
@@ -120,20 +124,6 @@
 
     /* revelações */
     if (pending.length && (tick++ % 6 === 0)) sweepReveals(vh);
-
-    /* parallax do hero (só enquanto visível) */
-    if (!reduced && y < vh * 1.2) {
-      var now = performance.now() / 1000;
-      depthEls.forEach(function (el, idx) {
-        var d = parseFloat(el.dataset.depth) || 0.2;
-        var tz = -y * d * 0.55;
-        var op = clamp(1 - (y / (vh * 0.85)) * d * 1.1, 0, 1);
-        /* cartões flutuantes ganham uma oscilação senoidal própria */
-        var bob = el.classList.contains('fcard') ? Math.sin(now * 0.9 + idx * 1.7) * 14 : 0;
-        el.style.transform = 'translate3d(0,' + (-y * d * 0.28 + bob) + 'px,' + tz + 'px)';
-        el.style.opacity = op;
-      });
-    }
 
     /* mapa isométrico reage ao scroll */
     if (mapPlane && !reduced) {
@@ -207,179 +197,4 @@
     s.style.setProperty('--i', i + 1);
   });
 
-  /* ============================================================
-     Globo de pontos 3D em canvas (hero) — projeção própria, sem libs
-     ============================================================ */
-  var cv = document.getElementById('globe');
-  if (cv) {
-    var ctx = cv.getContext('2d');
-    var pts = [], W = 0, H = 0, dpr = 1;
-    var N = 900;
-    var RAIO_INFL = 190;        /* raio de influencia do cursor, em px */
-
-    /* distribuicao fibonacci na esfera */
-    for (var i = 0; i < N; i++) {
-      var k = i + 0.5;
-      var phi = Math.acos(1 - 2 * k / N);
-      var theta = Math.PI * (1 + Math.sqrt(5)) * k;
-      pts.push({
-        x: Math.cos(theta) * Math.sin(phi),
-        y: Math.sin(theta) * Math.sin(phi),
-        z: Math.cos(phi),
-        s: Math.random() < 0.06 ? 2 : 1
-      });
-    }
-
-    function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = cv.clientWidth; H = cv.clientHeight;
-      cv.width = W * dpr; cv.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (alvoX === null) { alvoX = W / 2; alvoY = H / 2; segX = alvoX; segY = alvoY; }
-    }
-
-    /* ---- ponteiro ----
-       alvoX/alvoY guardam a posicao crua; segX/segY perseguem com atraso,
-       que e o que faz a esfera parecer ter inercia em vez de grudar no mouse. */
-    var alvoX = null, alvoY = null, segX = 0, segY = 0, temPonteiro = false;
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    window.addEventListener('pointermove', function (e) {
-      var r = cv.getBoundingClientRect();
-      alvoX = e.clientX - r.left;
-      alvoY = e.clientY - r.top;
-      temPonteiro = true;
-    }, { passive: true });
-
-    window.addEventListener('pointerleave', function () { temPonteiro = false; }, { passive: true });
-
-    /* clique solta uma onda que percorre a esfera */
-    var onda = null;
-    cv.parentNode.addEventListener('pointerdown', function (e) {
-      var r = cv.getBoundingClientRect();
-      onda = { x: e.clientX - r.left, y: e.clientY - r.top, t0: performance.now() };
-    });
-
-    /* cores vivas: acompanham o tema que o scroll estiver aplicando */
-    var padraoA1 = [124, 92, 255], padraoA2 = [34, 211, 238];
-    function acentos() {
-      var t = window.__temaAtual;
-      return t ? [t[0], t[1]] : [padraoA1, padraoA2];
-    }
-
-    var t = 0;
-    var vizinhos = [];          /* pontos sob influencia do cursor, reaproveitado */
-
-    function draw() {
-      if (!reduced) requestAnimationFrame(draw);
-      if (current.y > window.innerHeight * 1.15) return;   /* pausa fora da tela */
-
-      ctx.clearRect(0, 0, W, H);
-      if (!reduced) t += 0.0025;
-
-      /* sem ponteiro (toque, ou mouse fora), a esfera volta devagar ao centro */
-      if (alvoX === null) { alvoX = W / 2; alvoY = H / 2; }
-      var destinoX = temPonteiro ? alvoX : W / 2;
-      var destinoY = temPonteiro ? alvoY : H / 2;
-      segX = lerp(segX, destinoX, 0.10);
-      segY = lerp(segY, destinoY, 0.10);
-
-      var normX = (segX / W - 0.5);        /* -0.5 .. 0.5 */
-      var normY = (segY / H - 0.5);
-
-      var R = Math.min(W, H) * (W < 720 ? 0.21 : 0.19);
-      /* o centro da esfera se desloca na direcao do cursor, sem colar nele */
-      var cx = W / 2 + normX * Math.min(W, H) * 0.55;
-      var cy = H / 2 + normY * Math.min(W, H) * 0.40 + current.y * 0.18;
-
-      /* e ela tambem gira para "olhar" para o cursor */
-      var ay = t + normX * 1.5;
-      var ax = -0.35 + normY * 1.0 + current.y * 0.0009;
-      var ca = Math.cos(ay), sa = Math.sin(ay);
-      var cb = Math.cos(ax), sb = Math.sin(ax);
-
-      var cores = acentos();
-      var c1 = cores[0], c2 = cores[1];
-
-      /* onda do clique: raio cresce e some */
-      var ondaR = -1, ondaForca = 0;
-      if (onda) {
-        var dt = (performance.now() - onda.t0) / 900;
-        if (dt >= 1) { onda = null; }
-        else { ondaR = dt * Math.max(W, H) * 0.75; ondaForca = 1 - dt; }
-      }
-
-      vizinhos.length = 0;
-
-      for (var j = 0; j < pts.length; j++) {
-        var p = pts[j];
-        /* rotacao Y depois X */
-        var x1 = p.x * ca - p.z * sa;
-        var z1 = p.x * sa + p.z * ca;
-        var y1 = p.y * cb - z1 * sb;
-        var z2 = p.y * sb + z1 * cb;
-
-        var persp = 1 / (2.2 - z2);
-        var sx = cx + x1 * R * persp * 2.2;
-        var sy = cy + y1 * R * persp * 2.2;
-        var depth = (z2 + 1) / 2;                       /* 0 fundo .. 1 frente */
-
-        /* ---- reacao ao cursor ---- */
-        var dx = sx - segX, dy = sy - segY;
-        var dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        var forca = dist < RAIO_INFL ? 1 - dist / RAIO_INFL : 0;
-        if (forca > 0) {
-          var empurra = forca * forca * 30;
-          sx += (dx / dist) * empurra;
-          sy += (dy / dist) * empurra;
-          if (forca > 0.34 && vizinhos.length < 70) vizinhos.push(sx, sy, forca);
-        }
-
-        /* ---- onda do clique ---- */
-        var pulso = 0;
-        if (ondaR > 0) {
-          var dOnda = Math.abs(dist - ondaR);
-          if (dOnda < 70) pulso = (1 - dOnda / 70) * ondaForca;
-        }
-
-        var brilho = forca * 0.75 + pulso * 0.9;
-        var alpha = Math.min(1, 0.08 + depth * 0.6 + brilho);
-        var size = p.s * 0.9 + depth * 1.5 + forca * 2.4 + pulso * 2.6;
-        var cor = (p.s === 2 || brilho > 0.35) ? c2 : c1;
-        var op = p.s === 2 ? alpha : alpha * 0.85;
-
-        ctx.beginPath();
-        ctx.arc(sx, sy, size, 0, 6.283);
-        ctx.fillStyle = 'rgba(' + cor[0] + ',' + cor[1] + ',' + cor[2] + ',' + op + ')';
-        ctx.fill();
-      }
-
-      /* ---- constelacao: liga os pontos que estao perto do cursor ----
-         So os vizinhos entram no laco, entao o custo fica limitado
-         mesmo com 900 pontos na esfera. */
-      if (vizinhos.length > 5) {
-        ctx.lineWidth = 1;
-        for (var a = 0; a < vizinhos.length; a += 3) {
-          for (var b = a + 3; b < vizinhos.length; b += 3) {
-            var lx = vizinhos[a] - vizinhos[b];
-            var ly = vizinhos[a + 1] - vizinhos[b + 1];
-            var d2 = lx * lx + ly * ly;
-            if (d2 > 4900) continue;                      /* > 70px: ignora */
-            var forcaLinha = (1 - Math.sqrt(d2) / 70) *
-                             Math.min(vizinhos[a + 2], vizinhos[b + 2]);
-            ctx.strokeStyle = 'rgba(' + c2[0] + ',' + c2[1] + ',' + c2[2] + ',' +
-                              (forcaLinha * 0.5) + ')';
-            ctx.beginPath();
-            ctx.moveTo(vizinhos[a], vizinhos[a + 1]);
-            ctx.lineTo(vizinhos[b], vizinhos[b + 1]);
-            ctx.stroke();
-          }
-        }
-      }
-    }
-    draw();
-    window.addEventListener('resize', function () { if (reduced) draw(); });
-  }
 })();

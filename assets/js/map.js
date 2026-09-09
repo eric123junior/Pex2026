@@ -187,11 +187,11 @@
         id: 'clusters', type: 'circle', source: 'postos',
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': '#19e08a',
+          'circle-color': '#8aae96',
           'circle-opacity': 0.82,
           'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 40, 30],
           'circle-stroke-width': 2,
-          'circle-stroke-color': 'rgba(4,16,13,.75)'
+          'circle-stroke-color': 'rgba(16,20,24,.8)'
         }
       });
       mapa.addLayer({
@@ -202,7 +202,7 @@
           'text-font': ['Noto Sans Bold'],
           'text-size': 13
         },
-        paint: { 'text-color': '#04100d' }
+        paint: { 'text-color': '#101418' }
       });
 
       /* pontos individuais, coloridos pela potencia */
@@ -212,11 +212,11 @@
         paint: {
           'circle-radius': 7,
           'circle-color': ['case',
-            ['>=', ['get', 'kw'], 100], '#3ddcff',
-            ['>=', ['get', 'kw'], 22], '#19e08a',
-            '#c7f94b'],
+            ['>=', ['get', 'kw'], 100], '#6f99aa',
+            ['>=', ['get', 'kw'], 22], '#8aae96',
+            '#9aa7b4'],
           'circle-stroke-width': 2,
-          'circle-stroke-color': 'rgba(4,16,13,.8)'
+          'circle-stroke-color': 'rgba(16,20,24,.85)'
         }
       });
 

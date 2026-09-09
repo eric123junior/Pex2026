@@ -23,6 +23,11 @@
   /* ==========================================================
      1. Gráficos próprios
      ========================================================== */
+  /* JetBrains Mono e monoespacada: a 12px cada caractere avanca ~7,25px.
+     Isso permite dimensionar as colunas de texto sem medir no DOM. */
+  var AVANCO = 7.25;
+  var TRILHO_MIN = 90;     /* abaixo disso a barra deixa de comunicar */
+
   function barras(alvo, itens, opcoes) {
     if (!alvo || !itens || !itens.length) return;
     opcoes = opcoes || {};
@@ -31,11 +36,24 @@
        uniformemente (sem preserveAspectRatio="none"), senao o texto
        deformaria junto com a largura do cartao. */
     var LARG = 320;
-    var ROTULO = 46;        /* coluna do rotulo */
-    var VALOR = 46;         /* coluna do numero, a direita */
-    var TRILHO = LARG - ROTULO - VALOR;
     var LINHA = 26;
-    var alto = itens.length * LINHA;
+
+    /* As colunas de texto acompanham o conteudo. Com largura fixa, um
+       rotulo como "Tupinamba" ou "Acima de 150" passava por baixo da
+       barra — que era exatamente o defeito visivel no grafico de redes. */
+    var maxRotulo = 0, maxValor = 0;
+    itens.forEach(function (it) {
+      maxRotulo = Math.max(maxRotulo, String(it.rotulo).length);
+      maxValor = Math.max(maxValor, fmt.format(it.valor).length);
+    });
+
+    var VALOR = maxValor * AVANCO + 6;
+    /* o rotulo cede espaco antes do trilho: nunca o contrario */
+    var ROTULO = Math.min(maxRotulo * AVANCO + 8, LARG - VALOR - TRILHO_MIN);
+    var TRILHO = LARG - ROTULO - VALOR;
+
+    /* quantos caracteres cabem de fato na coluna que sobrou */
+    var cabem = Math.max(3, Math.floor((ROTULO - 8) / AVANCO));
 
     var maior = Math.max.apply(null, itens.map(function (i) { return i.valor; })) || 1;
 
@@ -44,21 +62,27 @@
       var w = Math.max(2, (it.valor / maior) * TRILHO);
       var cor = opcoes.alternar && i % 2
         ? 'rgb(var(--a2-rgb))' : 'rgb(var(--a1-rgb))';
+      var rotulo = String(it.rotulo);
+      var curto = rotulo.length > cabem ? rotulo.slice(0, cabem - 1) + '…' : rotulo;
+
       return '' +
-        '<text x="0" y="' + (y + 14) + '" class="g-rot">' + escapar(it.rotulo) + '</text>' +
-        '<rect x="' + ROTULO + '" y="' + (y + 5) + '" width="' + TRILHO +
+        '<text x="0" y="' + (y + 14) + '" class="g-rot">' + escapar(curto) +
+          (curto !== rotulo ? '<title>' + escapar(rotulo) + '</title>' : '') + '</text>' +
+        '<rect x="' + ROTULO.toFixed(1) + '" y="' + (y + 5) + '" width="' + TRILHO.toFixed(1) +
               '" height="11" rx="5.5" class="g-trilho"/>' +
-        '<rect x="' + ROTULO + '" y="' + (y + 5) + '" width="' + w.toFixed(1) +
+        '<rect x="' + ROTULO.toFixed(1) + '" y="' + (y + 5) + '" width="' + w.toFixed(1) +
               '" height="11" rx="5.5" fill="' + cor + '" class="g-barra" ' +
-              'style="--atraso:' + (i * 60) + 'ms;--origem:' + ROTULO + 'px"/>' +
+              'style="--atraso:' + (i * 60) + 'ms;--origem:' + ROTULO.toFixed(1) + 'px"/>' +
         '<text x="' + LARG + '" y="' + (y + 14) + '" class="g-val" text-anchor="end">' +
           fmt.format(it.valor) + '</text>';
     }).join('');
 
-    alvo.innerHTML = '<svg viewBox="0 0 ' + LARG + ' ' + alto + '" class="g-svg" ' +
+    alvo.innerHTML = '<svg viewBox="0 0 ' + LARG + ' ' + alto(itens, LINHA) + '" class="g-svg" ' +
       'role="img" aria-label="' + escapar(opcoes.titulo || 'gráfico de barras') + '">' +
       partes + '</svg>';
   }
+
+  function alto(itens, linha) { return itens.length * linha; }
 
   function escapar(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -75,17 +99,21 @@
           return { rotulo: u.uf, valor: u.total };
         }), { titulo: 'Eletropostos por estado' });
 
-      /* redes com mais pontos */
+      /* redes com mais pontos — o nome inteiro vai para o gráfico, que
+         corta sozinho se não couber e guarda o original num <title> */
       barras(document.getElementById('g-redes'),
         (s.redes || []).slice(0, 8).map(function (r) {
-          return { rotulo: encurtar(r.nome), valor: r.total };
+          return { rotulo: r.nome, valor: r.total };
         }), { titulo: 'Maiores redes', alternar: true });
 
-      /* faixas de potência */
+      /* faixas de potência: rótulos curtos para sobrar trilho */
       var pot = s.potencias || {};
       barras(document.getElementById('g-potencia'),
         Object.keys(pot).map(function (k) {
-          return { rotulo: k.replace(' kW', ''), valor: pot[k] };
+          return {
+            rotulo: k.replace('Até ', '≤ ').replace('Acima de ', '> ').replace(' kW', ''),
+            valor: pot[k]
+          };
         }), { titulo: 'Distribuição de potência' });
 
       /* rodapés com números */
@@ -107,10 +135,6 @@
     if (el) el.textContent = txt;
   }
 
-  function encurtar(nome) {
-    nome = String(nome || '');
-    return nome.length > 13 ? nome.slice(0, 12) + '…' : nome;
-  }
 
   /* ==========================================================
      2. Painéis oficiais da ABVE (Power BI)
