@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+
+# coletas brutas: regeraveis com os scripts de etl/
+etl/raw/

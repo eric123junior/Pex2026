@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="SustAmbiTech BI — plataforma open source de inteligência de dados sobre mobilidade elétrica no Brasil: eletropostos mapeados, modelos, preços e infraestrutura de recarga.">
+<meta name="theme-color" content="#05060e">
+<title>SustAmbiTech BI — Mobilidade Elétrica em Dados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css?v=20260909i">
+<link rel="stylesheet" href="assets/css/components.css?v=20260909i">
+<link rel="stylesheet" href="assets/css/interacoes.css?v=20260909i">
+</head>
+<body>
+
+<canvas id="estrelas" aria-hidden="true"></canvas>
+<div id="luz-cursor" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top">
+    <span class="brand-cube" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="brand-txt">SustAmbi<b>Tech</b><em>BI</em></span>
+  </a>
+
+  <nav class="nav-links" id="navLinks" aria-label="Navegação principal">
+    <a href="#recarga">Recarga</a>
+    <a href="#dashboards">Dashboards</a>
+    <a href="#mapa">Mapa</a>
+    <a href="#modelos">Modelos</a>
+    <a href="#categorias">Categorias</a>
+    <a href="#fontes">Fontes</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contato" class="nav-cta">Contato</a>
+  </nav>
+
+  <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <canvas id="globe" aria-hidden="true"></canvas>
+  <div class="hero-glow" data-depth="0.12" aria-hidden="true"></div>
+
+  <div class="hero-stage" data-depth="0.18">
+    <p class="eyebrow" data-depth="0.4">Business Intelligence · Open Source · Brasil</p>
+    <h1 class="hero-title" data-depth="0.16">
+      <span class="line"><span>Mobilidade</span></span>
+      <span class="line"><span>elétrica em</span></span>
+      <span class="line grad"><span>dados vivos</span></span>
+    </h1>
+    <p class="hero-sub">
+      Eletropostos mapeados ponto a ponto, preços reais de veículos eletrificados e
+      painéis analíticos — tudo a partir de fontes abertas e verificáveis.
+    </p>
+    <div class="hero-actions">
+      <a href="#recarga" class="btn btn-primary"><span>Ver como funciona</span></a>
+      <a href="#mapa" class="btn btn-ghost"><span>Abrir o mapa</span></a>
+    </div>
+    <p class="hero-dica">a esfera segue o cursor · clique para propagar</p>
+  </div>
+
+  <div class="hero-cards" aria-hidden="true">
+    <div class="fcard fcard-1" data-depth="0.9"><b>12.164</b><small>eletropostos</small></div>
+    <div class="fcard fcard-2" data-depth="1.3"><b>890</b><small>ofertas de veículos</small></div>
+    <div class="fcard fcard-3" data-depth="0.7"><b>27</b><small>estados cobertos</small></div>
+  </div>
+
+  <div class="scroll-hint"><span></span>role para explorar</div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="stats" id="numeros">
+  <div class="wrap">
+    <div class="stat-grid tilt-scene">
+      <article class="stat tilt reveal"><span class="num" id="st-eletropostos" data-count="12164">0</span><h3>Eletropostos</h3><p>pontos georreferenciados no país</p></article>
+      <article class="stat tilt reveal"><span class="num" id="st-ofertas" data-count="890">0</span><h3>Ofertas de veículos</h3><p>anúncios coletados com preço em reais</p></article>
+      <article class="stat tilt reveal"><span class="num" id="st-modelos" data-count="113">0</span><h3>Modelos distintos</h3><p>marca e modelo consolidados</p></article>
+      <article class="stat tilt reveal"><span class="num" id="st-ufs" data-count="27">0</span><h3>Estados cobertos</h3><p>todas as unidades federativas</p></article>
+      <article class="stat tilt reveal"><span class="num" id="st-conectores" data-count="4">0</span><h3>Tipos de conector</h3><p>CCS2, Type 2, CHAdeMO e GB/T</p></article>
+      <article class="stat tilt reveal"><span class="num" id="st-categorias" data-count="4">0</span><h3>Categorias ABVE</h3><p>presentes nas ofertas coletadas</p></article>
+    </div>
+    <p class="stats-nota reveal">
+      Coleta de <b data-atualizado>—</b> · eletropostos da API pública do carregados.com.br,
+      complementados pelo OpenStreetMap (ODbL) · ofertas de veículos via dados
+      estruturados schema.org
+    </p>
+  </div>
+</section>
+
+<!-- ============ CENA DE RECARGA (scroll) ============ -->
+<section class="charge" id="recarga">
+  <div class="charge-sticky">
+    <div class="charge-inner">
+
+      <header class="charge-head">
+        <p class="tag">Como um carregamento acontece</p>
+        <h2>Do <em>encaixe</em> à bateria cheia</h2>
+      </header>
+
+      <svg id="cena" class="charge-svg" viewBox="0 0 1200 500" role="img"
+           aria-label="Animação de um carro elétrico chegando a um eletroposto, conectando o cabo e carregando a bateria">
+
+        <defs>
+          <linearGradient id="g-carro" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#eefaf5"/>
+            <stop offset="55%" stop-color="#b9d8cd"/>
+            <stop offset="100%" stop-color="#6f8f84"/>
+          </linearGradient>
+          <linearGradient id="g-vidro" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2b4f5e"/>
+            <stop offset="100%" stop-color="#12262f"/>
+          </linearGradient>
+          <linearGradient id="g-totem" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#123b30"/>
+            <stop offset="100%" stop-color="#07211a"/>
+          </linearGradient>
+          <radialGradient id="g-brilho">
+            <stop offset="0%" stop-color="#19e08a" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#19e08a" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="g-farol">
+            <stop offset="0%" stop-color="#ffe9a8" stop-opacity=".95"/>
+            <stop offset="100%" stop-color="#ffe9a8" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- chao -->
+        <line x1="0" y1="410" x2="1200" y2="410" stroke="rgba(120,255,205,.25)" stroke-width="2"/>
+        <g id="c-chao" opacity=".6">
+          <g stroke="rgba(120,255,205,.35)" stroke-width="4" stroke-linecap="round">
+            <line x1="-120" y1="440" x2="-60" y2="440"/>
+            <line x1="0"    y1="440" x2="60"   y2="440"/>
+            <line x1="120"  y1="440" x2="180"  y2="440"/>
+            <line x1="240"  y1="440" x2="300"  y2="440"/>
+            <line x1="360"  y1="440" x2="420"  y2="440"/>
+            <line x1="480"  y1="440" x2="540"  y2="440"/>
+            <line x1="600"  y1="440" x2="660"  y2="440"/>
+            <line x1="720"  y1="440" x2="780"  y2="440"/>
+            <line x1="840"  y1="440" x2="900"  y2="440"/>
+            <line x1="960"  y1="440" x2="1020" y2="440"/>
+            <line x1="1080" y1="440" x2="1140" y2="440"/>
+            <line x1="1200" y1="440" x2="1260" y2="440"/>
+          </g>
+        </g>
+
+        <!-- totem de recarga -->
+        <g id="c-totem" opacity="0">
+          <rect x="946" y="150" width="74" height="260" rx="18" fill="url(#g-totem)"
+                stroke="rgba(120,255,205,.35)" stroke-width="2"/>
+          <rect x="962" y="170" width="42" height="60" rx="9" fill="#04120e"
+                stroke="rgba(120,255,205,.28)"/>
+          <g id="c-tela" opacity="0">
+            <rect x="966" y="174" width="34" height="52" rx="7" fill="#0b2f26"/>
+            <text id="c-pct" x="983" y="206" text-anchor="middle"
+                  font-family="JetBrains Mono, monospace" font-size="15" fill="#19e08a">12%</text>
+          </g>
+          <!-- simbolo de raio -->
+          <path d="M986 258 l-14 30 h11 l-7 26 20 -34 h-11 z" fill="#19e08a" opacity=".85"/>
+          <rect x="958" y="330" width="50" height="6" rx="3" fill="rgba(120,255,205,.25)"/>
+          <rect x="958" y="346" width="34" height="6" rx="3" fill="rgba(120,255,205,.18)"/>
+          <ellipse cx="983" cy="412" rx="58" ry="9" fill="rgba(0,0,0,.5)"/>
+        </g>
+
+        <!-- cabo (invisivel, serve de trilho para o plugue e para o fluxo) -->
+        <path id="c-cabo"
+              d="M946 300 C 880 300, 860 372, 792 362"
+              fill="none" stroke="#0d3a2e" stroke-width="9" stroke-linecap="round" opacity="0"/>
+        <path id="c-fluxo"
+              d="M946 300 C 880 300, 860 372, 792 362"
+              fill="none" stroke="#3ddcff" stroke-width="4" stroke-linecap="round" opacity="0"/>
+
+        <!-- carro -->
+        <g id="c-carro">
+          <!-- brilho sob o carro enquanto carrega -->
+          <ellipse id="c-brilho" cx="490" cy="412" rx="230" ry="26" fill="url(#g-brilho)" opacity="0"/>
+          <ellipse cx="490" cy="410" rx="215" ry="12" fill="rgba(0,0,0,.55)"/>
+
+          <!-- feixe do farol -->
+          <ellipse id="c-farol" cx="215" cy="330" rx="120" ry="34" fill="url(#g-farol)" opacity="0"/>
+
+          <!-- carroceria -->
+          <path d="M282 372
+                   C 268 372, 258 360, 260 344
+                   L 266 306
+                   C 270 288, 284 278, 302 276
+                   L 372 268
+                   L 424 216
+                   C 436 202, 454 194, 474 194
+                   L 592 194
+                   C 614 194, 634 204, 646 222
+                   L 682 272
+                   L 736 284
+                   C 762 290, 778 308, 778 330
+                   L 778 350
+                   C 778 364, 768 372, 754 372
+                   Z"
+                fill="url(#g-carro)" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
+
+          <!-- vidros -->
+          <path d="M446 266 L 486 216 C 492 208, 500 206, 510 206 L 556 206 L 556 266 Z" fill="url(#g-vidro)"/>
+          <path d="M572 206 L 592 206 C 606 206, 618 212, 626 224 L 654 266 L 572 266 Z" fill="url(#g-vidro)"/>
+
+          <!-- vinco lateral -->
+          <path d="M300 320 L 742 320" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+
+          <!-- farol e lanterna -->
+          <path d="M266 306 L 300 302 L 300 320 L 264 320 Z" fill="#ffe9a8" opacity=".92"/>
+          <path d="M760 300 L 778 306 L 778 322 L 760 322 Z" fill="#ff6b6b" opacity=".85"/>
+
+          <!-- porta de recarga -->
+          <g>
+            <rect x="700" y="296" width="30" height="26" rx="6" fill="#0c211b"
+                  stroke="rgba(120,255,205,.6)" stroke-width="1.5"/>
+            <circle cx="715" cy="309" r="6" fill="none" stroke="#19e08a" stroke-width="1.6"/>
+          </g>
+
+          <!-- rodas -->
+          <g>
+            <circle cx="352" cy="372" r="46" fill="#0a1512" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <circle cx="352" cy="372" r="24" fill="#16241f"/>
+            <g id="c-roda1">
+              <rect x="349" y="350" width="6" height="44" rx="3" fill="rgba(200,255,235,.5)"/>
+              <rect x="330" y="369" width="44" height="6" rx="3" fill="rgba(200,255,235,.5)"/>
+            </g>
+          </g>
+          <g>
+            <circle cx="636" cy="372" r="46" fill="#0a1512" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <circle cx="636" cy="372" r="24" fill="#16241f"/>
+            <g id="c-roda2">
+              <rect x="633" y="350" width="6" height="44" rx="3" fill="rgba(200,255,235,.5)"/>
+              <rect x="614" y="369" width="44" height="6" rx="3" fill="rgba(200,255,235,.5)"/>
+            </g>
+          </g>
+
+          <!-- indicador de bateria flutuando sobre o carro -->
+          <g transform="translate(430,0)">
+            <rect x="0" y="146" width="46" height="62" rx="8" fill="rgba(4,18,14,.85)"
+                  stroke="rgba(120,255,205,.45)" stroke-width="2"/>
+            <rect x="16" y="138" width="14" height="8" rx="3" fill="rgba(120,255,205,.45)"/>
+            <rect id="c-bateria-nivel" x="4" y="150" width="38" height="0" rx="5" fill="#19e08a"/>
+          </g>
+        </g>
+
+        <!-- plugue, posicionado ao longo do cabo -->
+        <g id="c-plugue" opacity="0">
+          <g transform="translate(-13,-11)">
+            <rect x="0" y="0" width="26" height="22" rx="6" fill="#0e2b23"
+                  stroke="#19e08a" stroke-width="2"/>
+            <circle cx="9" cy="11" r="3" fill="#19e08a"/>
+            <circle cx="18" cy="11" r="3" fill="#19e08a"/>
+          </g>
+        </g>
+      </svg>
+
+      <!-- legendas que trocam conforme a fase -->
+      <div class="charge-steps">
+        <p class="chg-step on"><b>01</b> O veículo chega ao ponto de recarga.</p>
+        <p class="chg-step"><b>02</b> O conector CCS2 encaixa na porta do carro.</p>
+        <p class="chg-step"><b>03</b> A energia flui e a bateria enche.</p>
+        <p class="chg-step"><b>04</b> Pronto para 427 km de autonomia.</p>
+      </div>
+
+      <dl class="charge-hud">
+        <div><dt>Carga</dt><dd><span id="kwh">0.0</span> <i>kWh</i></dd></div>
+        <div><dt>Autonomia</dt><dd><span id="km">48</span> <i>km</i></dd></div>
+        <div><dt>Restante</dt><dd><span id="min">38</span> <i>min</i></dd></div>
+      </dl>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ DASHBOARDS ============ -->
+<section class="section" id="dashboards">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">01 — Inteligência</p>
+      <h2>Dashboards <em>interativos</em></h2>
+      <p class="lead">Duas camadas: gráficos gerados do nosso próprio banco e os painéis
+        oficiais da ABVE, incorporados direto da fonte.</p>
+    </header>
+
+    <!-- gráficos do banco local -->
+    <div class="graficos">
+      <article class="grafico reveal">
+        <h3>Eletropostos por estado</h3>
+        <div id="g-uf" class="g-area"></div>
+        <p class="g-nota" id="g-uf-nota">carregando…</p>
+      </article>
+
+      <article class="grafico reveal">
+        <h3>Maiores redes de recarga</h3>
+        <div id="g-redes" class="g-area"></div>
+        <p class="g-nota" id="g-redes-nota"></p>
+      </article>
+
+      <article class="grafico reveal">
+        <h3>Distribuição de potência</h3>
+        <div id="g-potencia" class="g-area"></div>
+        <p class="g-nota" id="g-potencia-nota"></p>
+      </article>
+    </div>
+    <p class="stats-nota reveal" id="g-fontes"></p>
+
+    <!-- painéis oficiais -->
+    <header class="sec-head reveal" style="margin-top:4.5rem">
+      <p class="tag">Fonte oficial</p>
+      <h3 class="sub-grande">Painéis da <em>ABVE</em></h3>
+      <p class="lead">Relatórios Power BI publicados pela Associação Brasileira do Veículo
+        Elétrico. São os dados de referência do setor — frota, vendas, eletropostos,
+        ônibus e distribuição geográfica.</p>
+    </header>
+
+    <div class="bi-abas reveal" role="tablist" aria-label="Painéis da ABVE">
+      <button class="bi-aba ativa" role="tab" aria-selected="true"
+        data-origem="https://abve.org.br/abve-data/bi-geral/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiZDczMmRiZGEtMGVlMy00NTg2LThiNzUtOWQxZjIyZjNhOWFhIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Geral</button>
+      <button class="bi-aba" role="tab" aria-selected="false"
+        data-origem="https://abve.org.br/abve-data/bi-frotas/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiMDc5ZWMzYjgtMWZkNi00YzAwLTkzYjAtZmQyMmI5MjU4OTcwIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Frotas</button>
+      <button class="bi-aba" role="tab" aria-selected="false"
+        data-origem="https://abve.org.br/abve-data/bi-eletropostos/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiZmZkODA1NmUtOGM2OC00OWZjLWE3YzMtZTJiYmJhMzcyYjI0IiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Eletropostos</button>
+      <button class="bi-aba" role="tab" aria-selected="false"
+        data-origem="https://abve.org.br/abve-data/bi-geografia-da-eletromobilidade/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiMzg5MzllM2UtMTJlNC00YTZkLThiODctYTdiMTYzZDE3YWVkIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Geografia</button>
+      <button class="bi-aba" role="tab" aria-selected="false"
+        data-origem="https://abve.org.br/abve-data/bi-onibus/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiZThmN2FmYmQtYzZhNy00ZDk3LTkzNDYtYjNmZWJkMjVlMGQyIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Ônibus</button>
+    </div>
+
+    <div class="bi-palco reveal" id="bi-palco"></div>
+    <p class="stats-nota" id="bi-credito"></p>
+
+    <p class="aviso reveal">
+      <b>Por que estes painéis abrem aqui e o mapa do carregados não:</b> a ABVE publicou
+      os relatórios com a opção “Publicar na web” do Power BI, que autoriza a incorporação
+      em qualquer site. Já o carregados.com.br envia <code>x-frame-options: SAMEORIGIN</code>,
+      instruindo o navegador a recusar. É decisão de cada fonte, não limitação do nosso lado.
+    </p>
+  </div>
+</section>
+
+<!-- ============ MAPA ============ -->
+<section class="section map-sec" id="mapa">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">02 — Infraestrutura</p>
+      <h2>Mapa de <em>recarga</em> interativo</h2>
+      <p class="lead">Mapa próprio, renderizado com MapLibre GL sobre tiles do OpenFreeMap.
+        Clique num ponto para ver operador, conectores e potência.</p>
+    </header>
+
+    <div class="mapa-barra reveal">
+      <label class="campo">
+        <span>Estado</span>
+        <select id="mapa-uf"><option value="">Brasil inteiro</option></select>
+      </label>
+      <label class="campo cresce">
+        <span>Buscar</span>
+        <input id="mapa-busca" type="search" placeholder="operador, cidade ou nome do ponto">
+      </label>
+      <button id="mapa-sp" class="btn btn-ghost pequeno" type="button"><span>Centralizar em SP</span></button>
+      <p class="mapa-contagem"><b id="mapa-total">—</b> pontos visíveis</p>
+    </div>
+
+    <div class="mapa-moldura reveal">
+      <div id="mapa-gl"></div>
+      <div class="mapa-legenda" aria-hidden="true">
+        <span><i style="background:#3ddcff"></i>≥ 100 kW</span>
+        <span><i style="background:#19e08a"></i>22–99 kW</span>
+        <span><i style="background:#c7f94b"></i>&lt; 22 kW ou não informado</span>
+      </div>
+    </div>
+    <p class="mapa-status" id="mapa-status">Carregando o mapa…</p>
+
+    <div class="map-grid">
+      <div class="reveal">
+        <h3 class="sub">Onde estão os pontos</h3>
+        <ul class="rank" id="rank-uf">
+          <li><span>SP</span><b>São Paulo</b><i style="--p:100%"></i><u>2.666</u></li>
+          <li><span>RS</span><b>Rio Grande do Sul</b><i style="--p:41%"></i><u>1.092</u></li>
+          <li><span>MG</span><b>Minas Gerais</b><i style="--p:41%"></i><u>1.087</u></li>
+          <li><span>SC</span><b>Santa Catarina</b><i style="--p:36%"></i><u>972</u></li>
+          <li><span>PR</span><b>Paraná</b><i style="--p:35%"></i><u>922</u></li>
+          <li><span>RJ</span><b>Rio de Janeiro</b><i style="--p:31%"></i><u>834</u></li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <h3 class="sub">Por que o mapa antigo falhava</h3>
+        <p class="lead">O portal carregados.com.br responde com <code>x-frame-options: SAMEORIGIN</code>
+          e <code>frame-ancestors 'self'</code>. Isso instrui o navegador a recusar a página dentro de
+          um <code>&lt;iframe&gt;</code> de outro domínio — daí a mensagem de conexão recusada.
+          Nenhum ajuste de parâmetro contorna a política; a saída é renderizar o mapa localmente,
+          que é o que esta seção faz.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODELOS E PREÇOS ============ -->
+<section class="section" id="modelos">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">03 — Mercado</p>
+      <h2>Modelos, <em>preços</em> e conectores</h2>
+      <p class="lead">Preço médio calculado sobre as ofertas coletadas. A coluna de referência
+        internacional traz o MSRP em dólar convertido pela cotação do dia da coleta.</p>
+    </header>
+
+    <div class="mapa-barra reveal">
+      <label class="campo">
+        <span>Categoria</span>
+        <select id="modelos-filtro">
+          <option value="">Todas</option>
+          <option value="BEV">BEV — 100% elétrico</option>
+          <option value="PHEV">PHEV — híbrido plug-in</option>
+          <option value="HEV">HEV — híbrido</option>
+          <option value="MHEV">MHEV — híbrido leve</option>
+        </select>
+      </label>
+      <label class="campo cresce">
+        <span>Buscar</span>
+        <input id="modelos-busca" type="search" placeholder="marca ou modelo">
+      </label>
+      <p class="mapa-contagem mono" id="modelos-cambio">—</p>
+    </div>
+
+    <div class="tabela-rolagem reveal">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Modelo</th><th>Categoria</th><th>Conector</th><th>Autonomia</th>
+            <th class="cel-num">Preço médio (BR)</th><th class="cel-num">Ref. int. convertida</th>
+            <th class="cel-num">Ofertas</th>
+          </tr>
+        </thead>
+        <tbody id="modelos-corpo">
+          <tr><td colspan="7" class="vazio">Carregando modelos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pag reveal" id="modelos-paginacao"></div>
+    <p class="stats-nota reveal">
+      Autonomia e conector são <b>estimativas de referência</b> por modelo, compiladas de material
+      público dos fabricantes — não são medições próprias nem ficha técnica oficial.
+    </p>
+  </div>
+</section>
+
+<!-- ============ CATEGORIAS ============ -->
+<section class="section" id="categorias">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">04 — Taxonomia</p>
+      <h2>As <em>5 categorias</em> ABVE</h2>
+      <p class="lead">Números da coleta atual. Passe o cursor, toque ou use o teclado para virar cada cartão e ver a definição.</p>
+    </header>
+
+    <div class="flips">
+      <div class="flip reveal" data-cat="BEV" tabindex="0" role="button"
+           aria-expanded="false" aria-label="BEV — 100% elétrico. Ative para ver a descrição.">
+        <div class="flip-in">
+          <div class="flip-f">
+            <div class="flip-topo">
+              <span class="badge">BEV</span>
+              <span class="flip-girar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+              </span>
+            </div>
+            <span class="flip-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M21 12.5v3"/><path d="M8 11.5 6.5 14.5h2.2L7.4 17.5l3.1-3.6H8.3z"/></svg>
+            </span>
+            <h3>100% elétrico</h3>
+            <dl class="flip-dados" data-cat-dados="BEV"></dl>
+          </div>
+          <div class="flip-b">
+            <p>Movido exclusivamente por bateria. Zero emissão no escapamento e a maior eficiência energética entre todas as categorias.</p>
+            <dl class="flip-dados verso" data-cat-verso="BEV"></dl>
+          </div>
+        </div>
+      </div>
+      <div class="flip reveal" data-cat="PHEV" tabindex="0" role="button"
+           aria-expanded="false" aria-label="PHEV — Híbrido plug-in. Ative para ver a descrição.">
+        <div class="flip-in">
+          <div class="flip-f">
+            <div class="flip-topo">
+              <span class="badge">PHEV</span>
+              <span class="flip-girar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+              </span>
+            </div>
+            <span class="flip-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v5M13 3v5"/><path d="M5 8h10v3a5 5 0 0 1-10 0z"/><path d="M10 16v3a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3v-6"/></svg>
+            </span>
+            <h3>Híbrido plug-in</h3>
+            <dl class="flip-dados" data-cat-dados="PHEV"></dl>
+          </div>
+          <div class="flip-b">
+            <p>Bateria recarregável na tomada somada a um motor a combustão, que assume quando a carga elétrica acaba.</p>
+            <dl class="flip-dados verso" data-cat-verso="PHEV"></dl>
+          </div>
+        </div>
+      </div>
+      <div class="flip reveal" data-cat="HEV" tabindex="0" role="button"
+           aria-expanded="false" aria-label="HEV — Híbrido convencional. Ative para ver a descrição.">
+        <div class="flip-in">
+          <div class="flip-f">
+            <div class="flip-topo">
+              <span class="badge">HEV</span>
+              <span class="flip-girar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+              </span>
+            </div>
+            <span class="flip-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4-2-7-5.5-7-10a7 7 0 0 1 14 0c0 4.5-3 8-7 10z"/><path d="M12 21V8"/><path d="M12 12l3-2M12 15l-3-2"/></svg>
+            </span>
+            <h3>Híbrido convencional</h3>
+            <dl class="flip-dados" data-cat-dados="HEV"></dl>
+          </div>
+          <div class="flip-b">
+            <p>Recarrega apenas pela frenagem regenerativa e pelo motor a combustão. Não tem tomada: nunca depende de eletroposto.</p>
+            <dl class="flip-dados verso" data-cat-verso="HEV"></dl>
+          </div>
+        </div>
+      </div>
+      <div class="flip reveal" data-cat="MHEV" tabindex="0" role="button"
+           aria-expanded="false" aria-label="MHEV — Híbrido leve. Ative para ver a descrição.">
+        <div class="flip-in">
+          <div class="flip-f">
+            <div class="flip-topo">
+              <span class="badge">MHEV</span>
+              <span class="flip-girar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+              </span>
+            </div>
+            <span class="flip-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>
+            </span>
+            <h3>Híbrido leve</h3>
+            <dl class="flip-dados" data-cat-dados="MHEV"></dl>
+          </div>
+          <div class="flip-b">
+            <p>Sistema de 48V que assiste o motor térmico em arrancadas e retomadas, cortando consumo sem tração puramente elétrica.</p>
+            <dl class="flip-dados verso" data-cat-verso="MHEV"></dl>
+          </div>
+        </div>
+      </div>
+      <div class="flip reveal" data-cat="FCEV" tabindex="0" role="button"
+           aria-expanded="false" aria-label="FCEV — Célula de hidrogênio. Ative para ver a descrição.">
+        <div class="flip-in">
+          <div class="flip-f">
+            <div class="flip-topo">
+              <span class="badge">FCEV</span>
+              <span class="flip-girar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+              </span>
+            </div>
+            <span class="flip-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5.5 5.2 5.5 9.2A5.5 5.5 0 0 1 12 18a5.5 5.5 0 0 1-5.5-5.8C6.5 8.2 12 3 12 3z"/><path d="M9.5 21h5"/></svg>
+            </span>
+            <h3>Célula de hidrogênio</h3>
+            <dl class="flip-dados" data-cat-dados="FCEV"></dl>
+          </div>
+          <div class="flip-b">
+            <p>Gera a própria eletricidade a bordo a partir do hidrogênio comprimido, emitindo somente vapor de água.</p>
+            <dl class="flip-dados verso" data-cat-verso="FCEV"></dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVIÇOS ============ -->
+<section class="section" id="servicos">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">05 — Plataforma</p>
+      <h2>O que a plataforma <em>entrega</em></h2>
+    </header>
+    <div class="svc tilt-scene">
+      <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6 3-6-3z"/><path d="M9 7v13M15 4v13"/></svg></span><h3>Mapa próprio</h3><p>MapLibre GL + OpenFreeMap, com clusterização, filtro por estado e busca.</p></article>
+      <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span><h3>Banco reproduzível</h3><p>Pipeline em Python que baixa, normaliza e gera SQLite, SQL e CSV.</p></article>
+      <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="3"/><path d="M8.5 2.5v1.5M8.5 13v1.5M2.5 8.5H4M13 8.5h1.5M4.3 4.3l1 1M12 12l1 1M12.7 4.3l-1 1M5.3 12l-1 1"/><path d="M11.5 14a4 4 0 0 1 7.8.4 3.1 3.1 0 0 1-.6 6.1H11a3.3 3.3 0 0 1 .5-6.5z"/></svg></span><h3>Widget climático</h3><p>Open-Meteo por cidade ou geolocalização, sem chave de API.</p></article>
+      <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/><circle cx="12" cy="12" r="9" stroke-dasharray="2 3"/></svg></span><h3>Conversão cambial</h3><p>Preços de referência em dólar convertidos pela cotação do dia.</p></article>
+      <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M3 9h14M7 3v3M13 3v3"/><circle cx="17.5" cy="16.5" r="4.5"/><path d="M17.5 14.5v2l1.4 1"/></svg></span><h3>Snapshots datados</h3><p>Cada execução do ETL grava uma linha na tabela de snapshots.</p></article>
+      <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8 3.5 12 8 16M16 8l4.5 4-4.5 4M13.5 5l-3 14"/></svg></span><h3>Código aberto</h3><p>Licença MIT, com atribuição das fontes de dados originais.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FONTES / STACK ============ -->
+<section class="section" id="fontes">
+  <div class="wrap two">
+    <div class="reveal">
+      <p class="tag">06 — Procedência</p>
+      <h2>Fontes de <em>dados</em></h2>
+      <ul class="list">
+        <li><b>carregados.com.br</b> — base principal de eletropostos, pela API pública de mapa do portal: coordenadas, rede, potência e confiabilidade.</li>
+        <li><b>OpenStreetMap</b> — eletropostos complementares, com conectores e horários, via Overpass API. Licença ODbL 1.0.</li>
+        <li><b>IBGE</b> — malha territorial das UFs, usada para atribuir o estado de cada ponto.</li>
+        <li><b>carregados.com.br</b> — ofertas de veículos, lidas dos dados estruturados schema.org que a própria página publica.</li>
+        <li><b>ABVE</b> — painéis Power BI oficiais do setor, incorporados na seção de dashboards.</li>
+        <li><b>AwesomeAPI</b> — cotação USD→BRL para converter preços de referência internacionais.</li>
+        <li><b>Open-Meteo</b> — clima e geocodificação do widget flutuante.</li>
+      </ul>
+      <p class="note">A SustAmbiTech atua como <b>agregadora</b> de dados públicos: não gera dados
+        primários, credita a origem e mantém o pipeline aberto para auditoria.</p>
+    </div>
+    <div class="reveal">
+      <p class="tag">Stack</p>
+      <h2>Tecnologia <em>usada</em></h2>
+      <div class="chips">
+        <span>GitHub Pages</span><span>Python 3</span><span>SQLite</span>
+        <span>MapLibre GL</span><span>OpenFreeMap</span><span>Overpass API</span>
+        <span>Open-Meteo</span><span>Power BI</span><span>Licença MIT</span>
+      </div>
+      <p class="note">Sem framework e sem build: o site é HTML, CSS e JavaScript puros.
+        A única dependência externa do navegador é a biblioteca do mapa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIME ============ -->
+<section class="section" id="time">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">07 — Pessoas</p>
+      <h2>Time <em>multidisciplinar</em></h2>
+    </header>
+    <div class="team tilt-scene">
+      <article class="member tilt reveal"><div class="av">TL</div><h3>Tech Lead</h3><p>Arquitetura, roadmap e revisão de código.</p></article>
+      <article class="member tilt reveal"><div class="av">FS</div><h3>Full Stack</h3><p>Front-end, integrações e publicação.</p></article>
+      <article class="member tilt reveal"><div class="av">BI</div><h3>BI / Analytics</h3><p>Modelagem, medidas DAX e painéis.</p></article>
+      <article class="member tilt reveal"><div class="av">DB</div><h3>Engenharia de Dados</h3><p>Pipelines, snapshots e qualidade.</p></article>
+      <article class="member tilt reveal"><div class="av">ES</div><h3>ESG / Sustentabilidade</h3><p>Curadoria temática e impacto ambiental.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section" id="faq">
+  <div class="wrap narrow">
+    <header class="sec-head reveal">
+      <p class="tag">08 — Perguntas frequentes</p>
+      <h2>FAQ</h2>
+    </header>
+    <div class="acc reveal">
+      <details open>
+        <summary>De onde vêm os eletropostos do mapa?</summary>
+        <p>Do OpenStreetMap, consultado pela Overpass API com um recorte no <em>bounding box</em> do
+          Brasil. Cada ponto recebe a UF por teste de ponto-em-polígono contra a malha territorial
+          do IBGE, o que também descarta pontos de países vizinhos que caem dentro do retângulo.
+          Os dados são distribuídos sob a licença ODbL 1.0 e exigem atribuição.</p>
+      </details>
+      <details>
+        <summary>De onde vêm os 12 mil eletropostos?</summary>
+        <p>De duas fontes combinadas. A principal é a <b>API pública de mapa do
+          carregados.com.br</b> (<code>/api/mobile/v1/map/stations</code>), que responde
+          GeoJSON com coordenadas, rede, potência e índice de confiabilidade — foram
+          12.009 pontos. A ela somamos 155 registros do <b>OpenStreetMap</b> que não tinham
+          equivalente por perto; outros 228 do OSM foram reconhecidos como repetidos e
+          descartados por proximidade (150 m). A coluna <code>fonte</code> no banco diz a
+          origem de cada linha, e os dois conjuntos nunca se misturam: o subconjunto do
+          OSM é ODbL e exige atribuição e compartilhamento igual.</p>
+      </details>
+      <details>
+        <summary>Vocês podem usar os dados do carregados.com.br?</summary>
+        <p>A coleta é para este projeto de extensão universitária, sem fim comercial e com
+          crédito à fonte em todas as telas. O <code>robots.txt</code> do portal declara
+          <code>Allow: /</code> e <code>Content-Signal: ai-train=yes, search=yes,
+          ai-input=yes</code>, e a rota consultada é uma API pública do próprio site.
+          Cada registro guarda o link da página de origem. Ainda assim, é uma base
+          proprietária, não dado aberto: quem quiser reaproveitar deve procurar o portal.
+          Pedidos de correção ou remoção podem ser feitos via GitHub Issues e serão
+          atendidos.</p>
+      </details>
+      <details>
+        <summary>Por que o mapa antigo mostrava “conexão recusada”?</summary>
+        <p>Porque o carregados.com.br envia os cabeçalhos <code>x-frame-options: SAMEORIGIN</code> e
+          <code>content-security-policy: frame-ancestors 'self'</code>. Eles mandam o navegador
+          bloquear a página dentro de um <code>&lt;iframe&gt;</code> hospedado em outro domínio.
+          É uma decisão do site de origem: não existe parâmetro, proxy simples ou ajuste de código
+          no nosso lado que a contorne legitimamente. Por isso o mapa foi reconstruído aqui.</p>
+      </details>
+      <details>
+        <summary>Os preços dos veículos são oficiais?</summary>
+        <p>Os preços são reais, lidos dos anúncios publicados em carregados.com.br através do bloco
+          <code>schema.org/Vehicle</code> que a própria página expõe para buscadores. O que é
+          <b>estimativa</b> é a ficha técnica associada a cada modelo — autonomia, capacidade de
+          bateria e tipo de conector —, compilada de material público dos fabricantes para permitir
+          o cruzamento por categoria ABVE.</p>
+      </details>
+      <details>
+        <summary>Como funciona a conversão de dólar para real?</summary>
+        <p>Alguns modelos têm MSRP de referência do mercado internacional em dólar. Na hora de gerar
+          o banco, o script <code>etl/fetch_cambio.py</code> consulta a cotação de venda na AwesomeAPI
+          (com a open.er-api.com como reserva) e grava tanto o valor em dólar quanto o convertido em
+          reais, junto com a data da cotação. A comparação serve para contexto de mercado, não como
+          preço praticado no Brasil.</p>
+      </details>
+      <details>
+        <summary>O botão de clima coleta minha localização?</summary>
+        <p>Só se você clicar em “Usar minha localização” e autorizar no navegador. A coordenada é
+          enviada diretamente à Open-Meteo para a consulta e não passa por nenhum servidor nosso —
+          o site é estático. A última cidade escolhida fica salva apenas no
+          <code>localStorage</code> do seu próprio navegador.</p>
+      </details>
+      <details>
+        <summary>Dá para extrair a base que alimenta o Power BI publicado?</summary>
+        <p>Não. Um relatório publicado com “Publicar na web” expõe o visual renderizado, não o modelo
+          semântico por trás dele. Ler o dataset exige autenticação no workspace e uso da API do
+          Power BI ou do XMLA endpoint — algo que só o dono do relatório pode fazer, com as próprias
+          credenciais. O caminho correto é o inverso: publicar um relatório novo sobre o banco aberto
+          deste repositório, como descrito em <code>docs/POWERBI.md</code>.</p>
+      </details>
+      <details>
+        <summary>Como reproduzo os dados na minha máquina?</summary>
+        <p>Com Python 3 instalado, rode em sequência <code>python etl/fetch_eletropostos.py</code>,
+          <code>python etl/fetch_carros.py</code>, <code>python etl/fetch_cambio.py</code> e
+          <code>python etl/build_db.py</code>. Nenhuma chave de API é necessária. O resultado aparece
+          em <code>data/</code> e em <code>assets/data/</code>, e o site passa a refletir a nova coleta.</p>
+      </details>
+      <details>
+        <summary>Preciso de alguma chave de API?</summary>
+        <p>Não para o que está no repositório. Se quiser ampliar a cobertura de eletropostos, o
+          OpenChargeMap oferece uma base bem maior, mas exige uma chave gratuita criada por você em
+          openchargemap.org. Como o site é estático e público, uma chave colocada no front-end fica
+          visível para qualquer visitante — use-a no ETL, que roda na sua máquina.</p>
+      </details>
+      <details>
+        <summary>Com que frequência os dados são atualizados?</summary>
+        <p>A cada execução do pipeline, que grava uma linha datada na tabela <code>snapshots</code>.
+          O rodapé e a seção de números mostram a data da coleta vigente, então a página sempre diz
+          de quando são os dados que você está vendo.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POLÍTICAS ============ -->
+<section class="section" id="politicas">
+  <div class="wrap narrow">
+    <header class="sec-head reveal">
+      <p class="tag">09 — Legal</p>
+      <h2>Políticas e <em>termos</em></h2>
+    </header>
+    <div class="acc reveal">
+      <details>
+        <summary>Termos de uso</summary>
+        <p>O portal SustAmbiTech BI é um projeto acadêmico e de código aberto, disponibilizado
+          gratuitamente para consulta pública. O uso é destinado a fins educacionais e de pesquisa;
+          a exploração comercial depende de autorização prévia, e a citação dos dados exige
+          atribuição da fonte original.</p>
+      </details>
+      <details>
+        <summary>Privacidade</summary>
+        <p>Nenhum dado pessoal de visitantes é coletado, armazenado ou processado por nós. Não há
+          cookies proprietários nem rastreadores. As consultas de clima e os tiles do mapa são
+          requisições diretas do seu navegador à Open-Meteo e ao OpenFreeMap, que seguem as próprias
+          políticas.</p>
+      </details>
+      <details>
+        <summary>Licenciamento</summary>
+        <p>O código é distribuído sob Licença MIT. Os dados de eletropostos derivam do OpenStreetMap
+          e permanecem sob ODbL 1.0 — qualquer redistribuição precisa manter a atribuição e a mesma
+          licença para bases derivadas.</p>
+      </details>
+      <details>
+        <summary>Uso de dados de terceiros</summary>
+        <p>As ofertas de veículos são lidas dos dados estruturados que carregados.com.br publica
+          para indexação, com <code>robots.txt</code> permitindo rastreamento. Guardamos os anúncios
+          com o link de origem e priorizamos o uso agregado por modelo. Pedidos de remoção ou
+          correção podem ser feitos via GitHub Issues.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTATO ============ -->
+<section class="section cta-sec" id="contato">
+  <div class="wrap">
+    <div class="cta reveal">
+      <div class="cta-orb" aria-hidden="true"></div>
+      <h2>Contribua com o <em>projeto</em></h2>
+      <p>Bugs, sugestões de indicadores ou propostas de parceria: abra uma issue no repositório.
+        Forks e pull requests são bem-vindos.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/KayhamCristoffer/SustAmbiTech" target="_blank" rel="noopener"><span>Abrir no GitHub</span></a>
+        <a class="btn btn-ghost" href="#top"><span>Voltar ao topo</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p>© <span id="yr"></span> SustAmbiTech BI — projeto acadêmico open source, Licença MIT.</p>
+    <p class="mono">coleta de <span data-atualizado>—</span> · OpenStreetMap (ODbL) · IBGE · Open-Meteo</p>
+  </div>
+</footer>
+
+<!-- ============ BOTÃO FLUTUANTE DE CLIMA ============ -->
+<button class="clima-fab" id="clima-fab" aria-expanded="false" aria-controls="clima-painel">
+  <span class="clima-fab-ico" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="9" cy="9" r="3.4"/>
+      <path d="M9 2.4v1.6M9 14v1.6M2.4 9h1.6M14 9h1.6M4.3 4.3l1.1 1.1M12.6 12.6l1.1 1.1M13.7 4.3l-1.1 1.1M5.4 12.6l-1.1 1.1"/>
+      <path d="M11.6 13.6a4 4 0 0 1 3.9-3.1 4.1 4.1 0 0 1 4 3.4 3.2 3.2 0 0 1-.6 6.3H11a3.3 3.3 0 0 1-.5-6.5z" fill="rgba(4,16,13,.35)"/>
+    </svg>
+  </span>
+  <span class="clima-fab-txt">Ver clima</span>
+</button>
+
+<aside class="clima-painel" id="clima-painel" hidden aria-label="Clima local">
+  <header class="clima-cab">
+    <h2>Clima agora</h2>
+    <button id="clima-fechar" class="clima-x" aria-label="Fechar">×</button>
+  </header>
+
+  <form id="clima-form" class="clima-form">
+    <input id="clima-cidade" type="search" placeholder="Digite sua cidade" autocomplete="address-level2">
+    <button type="submit" class="btn btn-primary pequeno"><span>Buscar</span></button>
+  </form>
+  <button id="clima-geo" type="button" class="clima-geo">Usar minha localização</button>
+
+  <p class="clima-erro" id="clima-erro" hidden></p>
+  <div class="clima-corpo" id="clima-corpo" hidden></div>
+  <div class="clima-spinner" aria-hidden="true"></div>
+</aside>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
+<script src="assets/js/tema.js?v=20260909i" defer></script>
+<script src="assets/js/interacoes.js?v=20260909i" defer></script>
+<script src="assets/js/main.js?v=20260909i" defer></script>
+<script src="assets/js/charging-scene.js?v=20260909i" defer></script>
+<script src="assets/js/data-sections.js?v=20260909i" defer></script>
+<script src="assets/js/dashboards.js?v=20260909i" defer></script>
+<script src="assets/js/map.js?v=20260909i" defer></script>
+<script src="assets/js/weather.js?v=20260909i" defer></script>
+</body>
+</html>
