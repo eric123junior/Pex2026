@@ -100,36 +100,43 @@ def chave_do_link(r):
 
 
 # ---------------------------------------------------------------- DSR
-def decodificar(resposta):
-    """Converte o formato DSR do Power BI em lista de linhas."""
+def decodificar(resposta, nomes):
+    """Converte o formato DSR do Power BI em lista de linhas.
+
+    As colunas agrupadas (G0, G1…) e as agregações (M0…) vêm em blocos
+    separados, não na ordem do Select; o descritor da resposta diz qual
+    chave corresponde a qual nome, e é por ele que as linhas são montadas.
+    """
     res = resposta["results"][0]["result"]["data"]
+    chave_de = {s["Name"]: s["Value"] for s in res["descriptor"]["Select"]}
     ds = res["dsr"]["DS"][0]
     dicts = ds.get("ValueDicts", {})
     linhas_brutas = ds["PH"][0].get("DM0", []) if ds.get("PH") else []
-    esquema, tipos, anterior, linhas = None, None, None, []
+    esquema, anterior, linhas = None, None, []
     for lin in linhas_brutas:
         if "S" in lin:
-            esquema = [c.get("DN") for c in lin["S"]]
-            tipos = [c.get("T") for c in lin["S"]]
-        n = len(esquema)
+            esquema = lin["S"]
         repetir = lin.get("R", 0)
         nulos = lin.get("Ø", 0)
         valores = iter(lin.get("C", []))
-        atual = []
-        for i in range(n):
+        atual = {}
+        for i, col in enumerate(esquema):
+            n = col["N"]
             if repetir >> i & 1:
-                atual.append(anterior[i])
+                atual[n] = anterior[n]
             elif nulos >> i & 1:
-                atual.append(None)
+                atual[n] = None
             else:
                 v = next(valores)
-                if esquema[i] and isinstance(v, int):
-                    v = dicts[esquema[i]][v]
-                atual.append(v)
+                if col.get("DN") and isinstance(v, int):
+                    v = dicts[col["DN"]][v]
+                atual[n] = v
         linhas.append(atual)
         anterior = atual
-    tokens = ds.get("RT")
-    return linhas, tipos, tokens
+    tipos = {c["N"]: c.get("T") for c in (esquema or [])}
+    chaves = [chave_de.get(n) for n in nomes]
+    return ([[l.get(k) for k in chaves] for l in linhas],
+            [tipos.get(k) for k in chaves], ds.get("RT"))
 
 
 def converter(v, tipo):
@@ -137,11 +144,8 @@ def converter(v, tipo):
         return None
     if tipo == 7 and isinstance(v, (int, float)):           # DateTime em epoch ms
         return dt.datetime(1970, 1, 1) + dt.timedelta(milliseconds=v)
-    if isinstance(v, str) and tipo in (3, 4):               # números em texto
-        try:
-            return float(v) if "." in v else int(v)
-        except ValueError:
-            return v
+    if isinstance(v, str) and tipo in (3, 4) and re.fullmatch(r"-?\d+(\.\d+)?", v):  # números em texto
+        return float(v) if "." in v else int(v)
     return v
 
 
@@ -179,7 +183,7 @@ def consultar_tabela(chave, modelo, entidade, colunas, somar=()):
         erro = resp["results"][0]["result"].get("data", {}).get("dsr", {}).get("DataShapes")
         if erro:
             raise RuntimeError(json.dumps(erro)[:300])
-        linhas, t, novos = decodificar(resp)
+        linhas, t, novos = decodificar(resp, [x["Name"] for x in sel])
         tipos = tipos or t
         todas.extend(linhas)
         if not novos or not linhas:
