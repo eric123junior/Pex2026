@@ -353,30 +353,26 @@
     <div class="bi-abas reveal" role="tablist" aria-label="Painéis da ABVE">
       <button class="bi-aba ativa" role="tab" aria-selected="true"
         data-origem="https://abve.org.br/abve-data/bi-geral/"
-        data-url="https://app.powerbi.com/view?r=eyJrIjoiZDczMmRiZGEtMGVlMy00NTg2LThiNzUtOWQxZjIyZjNhOWFhIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Geral</button>
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiZDczMmRiZGEtMGVlMy00NTg2LThiNzUtOWQxZjIyZjNhOWFhIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Eletromobilidade</button>
       <button class="bi-aba" role="tab" aria-selected="false"
         data-origem="https://abve.org.br/abve-data/bi-frotas/"
         data-url="https://app.powerbi.com/view?r=eyJrIjoiMDc5ZWMzYjgtMWZkNi00YzAwLTkzYjAtZmQyMmI5MjU4OTcwIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Frotas</button>
       <button class="bi-aba" role="tab" aria-selected="false"
-        data-origem="https://abve.org.br/abve-data/bi-eletropostos/"
-        data-url="https://app.powerbi.com/view?r=eyJrIjoiZmZkODA1NmUtOGM2OC00OWZjLWE3YzMtZTJiYmJhMzcyYjI0IiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Eletropostos</button>
-      <button class="bi-aba" role="tab" aria-selected="false"
         data-origem="https://abve.org.br/abve-data/bi-geografia-da-eletromobilidade/"
-        data-url="https://app.powerbi.com/view?r=eyJrIjoiMzg5MzllM2UtMTJlNC00YTZkLThiODctYTdiMTYzZDE3YWVkIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Geografia</button>
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiMzg5MzllM2UtMTJlNC00YTZkLThiODctYTdiMTYzZDE3YWVkIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Geografia da Eletromobilidade</button>
       <button class="bi-aba" role="tab" aria-selected="false"
         data-origem="https://abve.org.br/abve-data/bi-onibus/"
         data-url="https://app.powerbi.com/view?r=eyJrIjoiZThmN2FmYmQtYzZhNy00ZDk3LTkzNDYtYjNmZWJkMjVlMGQyIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Ônibus</button>
+      <button class="bi-aba" role="tab" aria-selected="false"
+        data-origem="https://abve.org.br/abve-data/bi-eletropostos/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiYzRiNjM5M2EtMzE0NS00ZjQ2LTljZTMtODVlZjc4YWQ2M2Y1IiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Eletropostos</button>
+      <button class="bi-aba" role="tab" aria-selected="false"
+        data-origem="https://abve.org.br/abve-data/eletrificadosmhev/"
+        data-url="https://app.powerbi.com/view?r=eyJrIjoiMzAxYzQ4ZjUtMjkwOC00ZDhlLTgwNWMtZDkwOGFlMmMyZDdmIiwidCI6IjQwNmMyNTc1LWM5ZDQtNGQ0NC1hNWI2LWJiNThiYzg2MDMzZSJ9">Eletrificados+MHEV</button>
     </div>
 
     <div class="bi-palco reveal" id="bi-palco"></div>
     <p class="stats-nota" id="bi-credito"></p>
-
-    <p class="aviso reveal">
-      <b>Por que estes painéis abrem aqui e o mapa do carregados não:</b> a ABVE publicou
-      os relatórios com a opção “Publicar na web” do Power BI, que autoriza a incorporação
-      em qualquer site. Já o carregados.com.br envia <code>x-frame-options: SAMEORIGIN</code>,
-      instruindo o navegador a recusar. É decisão de cada fonte, não limitação do nosso lado.
-    </p>
   </div>
 </section>
 
@@ -424,14 +420,6 @@
           <li><span>PR</span><b>Paraná</b><i style="--p:35%"></i><u>922</u></li>
           <li><span>RJ</span><b>Rio de Janeiro</b><i style="--p:31%"></i><u>834</u></li>
         </ul>
-      </div>
-      <div class="reveal">
-        <h3 class="sub">Por que o mapa antigo falhava</h3>
-        <p class="lead">O portal carregados.com.br responde com <code>x-frame-options: SAMEORIGIN</code>
-          e <code>frame-ancestors 'self'</code>. Isso instrui o navegador a recusar a página dentro de
-          um <code>&lt;iframe&gt;</code> de outro domínio — daí a mensagem de conexão recusada.
-          Nenhum ajuste de parâmetro contorna a política; a saída é renderizar o mapa localmente,
-          que é o que esta seção faz.</p>
       </div>
     </div>
   </div>
@@ -636,6 +624,10 @@
       <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M3 9h14M7 3v3M13 3v3"/><circle cx="17.5" cy="16.5" r="4.5"/><path d="M17.5 14.5v2l1.4 1"/></svg></span><h3>Snapshots datados</h3><p>Cada execução do ETL grava uma linha na tabela de snapshots.</p></article>
       <article class="svc-item tilt reveal"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8 3.5 12 8 16M16 8l4.5 4-4.5 4M13.5 5l-3 14"/></svg></span><h3>Código aberto</h3><p>Licença MIT, com atribuição das fontes de dados originais.</p></article>
     </div>
+    <p class="ref-base reveal">Referência: seção baseada na página
+      <a href="https://github.com/KayhamCristoffer/SustAmbiTech/blob/main/servicos.html" target="_blank" rel="noopener">Serviços</a>
+      do projeto original <a href="https://github.com/KayhamCristoffer/SustAmbiTech" target="_blank" rel="noopener">SustAmbiTech no GitHub</a>
+      (<a href="https://kayhamcristoffer.github.io/SustAmbiTech/servicos.html" target="_blank" rel="noopener">versão publicada</a>).</p>
   </div>
 </section>
 
@@ -781,11 +773,14 @@
       </details>
       <details>
         <summary>Dá para extrair a base que alimenta o Power BI publicado?</summary>
-        <p>Não. Um relatório publicado com “Publicar na web” expõe o visual renderizado, não o modelo
-          semântico por trás dele. Ler o dataset exige autenticação no workspace e uso da API do
-          Power BI ou do XMLA endpoint — algo que só o dono do relatório pode fazer, com as próprias
-          credenciais. O caminho correto é o inverso: publicar um relatório novo sobre o banco aberto
-          deste repositório, como descrito em <code>docs/POWERBI.md</code>.</p>
+        <p>Em parte. Um relatório publicado com “Publicar na web” é consultado pelo visualizador
+          público do Power BI, que lê as colunas do modelo semântico sem login. O script
+          <code>etl/export_powerbi_abve.py</code> faz as mesmas consultas e gera um Excel por painel
+          da ABVE (em <code>data/powerbi_abve/</code>), com uma aba por tabela. As medidas DAX não
+          vêm junto, porque são calculadas conforme os filtros de cada visual. Os dados continuam
+          sendo da ABVE e devem ser citados como tal. Para análises próprias, o caminho recomendado
+          segue sendo publicar um relatório sobre o banco aberto deste repositório, como descrito em
+          <code>docs/POWERBI.md</code>.</p>
       </details>
       <details>
         <summary>Como reproduzo os dados na minha máquina?</summary>
@@ -808,6 +803,10 @@
           de quando são os dados que você está vendo.</p>
       </details>
     </div>
+    <p class="ref-base reveal">Referência: perguntas baseadas na página
+      <a href="https://github.com/KayhamCristoffer/SustAmbiTech/blob/main/faq.html" target="_blank" rel="noopener">FAQ</a>
+      do projeto original <a href="https://github.com/KayhamCristoffer/SustAmbiTech" target="_blank" rel="noopener">SustAmbiTech no GitHub</a>
+      (<a href="https://kayhamcristoffer.github.io/SustAmbiTech/faq.html" target="_blank" rel="noopener">versão publicada</a>).</p>
   </div>
 </section>
 

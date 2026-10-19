@@ -108,6 +108,37 @@
     }).join('');
   }
 
+  /* Site oficial de cada marca no Brasil (ou global, quando não há
+     página brasileira). Chave = marca como vem em modelos.json. */
+  var SITES_MARCA = {
+    'audi': 'https://www.audi.com.br/', 'bmw': 'https://www.bmw.com.br/',
+    'byd': 'https://www.byd.com.br/', 'chery': 'https://caoachery.com.br/',
+    'chevrolet': 'https://www.chevrolet.com.br/', 'chrysler': 'https://www.chrysler.com/',
+    'denza': 'https://www.denza.com/br', 'fiat': 'https://www.fiat.com.br/',
+    'ford': 'https://www.ford.com.br/', 'gac': 'https://www.gacbrasil.com.br/',
+    'gac aion': 'https://www.gacbrasil.com.br/', 'geely': 'https://www.geelybrasil.com.br/',
+    'gmc': 'https://www.gmc.com/', 'gwm': 'https://www.gwmmotors.com.br/',
+    'honda': 'https://www.honda.com.br/', 'hyundai': 'https://www.hyundai.com.br/',
+    'jac': 'https://www.jacmotors.com.br/', 'jaecoo': 'https://www.omodajaecoo.com.br/',
+    'jaguar': 'https://www.jaguar.com.br/', 'kia': 'https://www.kia.com.br/',
+    'land rover': 'https://www.landrover.com.br/', 'leapmotor': 'https://www.leapmotor.com.br/',
+    'mercedes': 'https://www.mercedes-benz.com.br/', 'mg motor': 'https://www.mgmotor.com.br/',
+    'mini': 'https://www.mini.com.br/', 'nissan': 'https://www.nissan.com.br/',
+    'omoda': 'https://www.omodajaecoo.com.br/', 'peugeot': 'https://www.peugeot.com.br/',
+    'porsche': 'https://www.porsche.com/brazil/pt/', 'renault': 'https://www.renault.com.br/',
+    'tesla': 'https://www.tesla.com/', 'toyota': 'https://www.toyota.com.br/',
+    'volkswagen': 'https://www.vw.com.br/', 'volvo': 'https://www.volvocars.com/br/',
+    'zeekr': 'https://www.zeekr.com.br/'
+  };
+
+  function marcaComLink(marca) {
+    var url = SITES_MARCA[String(marca).toLowerCase()];
+    return url
+      ? '<a class="marca-link" href="' + url + '" target="_blank" rel="noopener" ' +
+        'title="Site oficial da ' + cap(marca) + '">' + cap(marca) + '</a>'
+      : cap(marca);
+  }
+
   /* ---------- modelos e precos ---------- */
   var elTabela = document.getElementById('modelos-corpo');
   if (!elTabela) return;
@@ -155,7 +186,7 @@
 
       elTabela.innerHTML = fatia.map(function (m) {
         return '<tr>' +
-          '<td><b>' + cap(m.marca) + '</b><span>' + cap(m.modelo) + '</span></td>' +
+          '<td><b>' + marcaComLink(m.marca) + '</b><span>' + cap(m.modelo) + '</span></td>' +
           '<td><span class="pill cat-' + m.categoria + '">' + m.categoria + '</span></td>' +
           '<td class="mono">' + (m.conector || '—') + '</td>' +
           '<td class="mono">' + (m.autonomia_km ? m.autonomia_km + ' km' : '—') + '</td>' +

@@ -16,7 +16,7 @@ dados vêm de um pipeline em Python que qualquer pessoa consegue rodar do zero.
 | **Hero** | Campo de partículas discreto em canvas, com deriva lenta e um raio pequeno de interação com o cursor. Métricas principais ancoradas logo abaixo da chamada. |
 | **Recarga** | Animação guiada pelo scroll: o carro chega, o cabo conecta, a bateria enche. Cada quadro é desenhado a partir do progresso do scroll, então a cena anda para frente e para trás com o gesto. |
 | **Mapa** | Mapa próprio em MapLibre GL sobre tiles do OpenFreeMap, com 12 mil pontos clusterizados, filtro por estado, busca e popup. Abre centralizado em São Paulo. |
-| **Dashboards** | Gráficos SVG gerados do banco local (por estado, por rede, por faixa de potência) mais os cinco painéis Power BI oficiais da ABVE, incorporados em abas. |
+| **Dashboards** | Gráficos SVG gerados do banco local (por estado, por rede, por faixa de potência) mais os seis painéis Power BI oficiais da ABVE, incorporados em abas. |
 | **Modelos** | 113 modelos consolidados a partir de 890 ofertas reais, com preço médio em reais e referência internacional em dólar convertida pela cotação do dia. |
 | **Clima** | Botão flutuante que consulta a Open-Meteo por cidade digitada ou por geolocalização, com temperatura, sensação, umidade, vento, índice UV e máx/mín. |
 | **FAQ** | Respostas sobre procedência dos dados, limitações conhecidas e como reproduzir tudo. |

@@ -96,6 +96,10 @@ h3.sub{font-size:1.15rem;margin-bottom:.6rem}
 .tabela tbody tr{transition:background .25s}
 .tabela tbody tr:hover{background:rgba(var(--a1-rgb),.06)}
 .tabela td b{display:block;font-weight:600}
+.marca-link{color:inherit;text-decoration:underline;text-decoration-color:rgba(var(--a1-rgb),.45);text-underline-offset:3px}
+.marca-link:hover,.marca-link:focus-visible{color:rgb(var(--a1-rgb));text-decoration-color:currentColor}
+.ref-base{margin-top:1.75rem;font-size:.85rem;color:var(--ink-dim)}
+.ref-base a{color:rgb(var(--a1-rgb))}
 .tabela td span:not(.pill){display:block;color:var(--ink-dim);font-size:.8rem}
 /* `cel-num` e nao `num`: a classe `.num` pertence aos contadores das
    estatisticas, que sao display:block e 2.6rem — aplicada a um <td>,

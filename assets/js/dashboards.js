@@ -12,7 +12,7 @@
       então não enviam `x-frame-options` e aceitam incorporação — ao
       contrário do mapa do carregados.com.br, que recusa.
 
-   Os iframes só são criados quando a aba é aberta: cinco relatórios
+   Os iframes só são criados quando a aba é aberta: seis relatórios
    Power BI carregados de uma vez pesariam vários MB à toa.
    ============================================================ */
 (function () {

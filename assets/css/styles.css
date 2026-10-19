@@ -285,6 +285,7 @@ h3{font-size:1.05rem;font-weight:600;letter-spacing:-.015em}
 
 /* ---------- map ---------- */
 .map-grid{display:grid;gap:3rem;grid-template-columns:1fr 1fr;align-items:center}
+.map-grid>:only-child{grid-column:1/-1}
 .rank{list-style:none;margin-top:2rem;display:grid;gap:.8rem}
 .rank li{display:grid;grid-template-columns:42px 1fr 1.4fr auto;align-items:center;gap:.8rem;
   padding:.75rem .9rem;border:1px solid var(--line);border-radius:14px;background:var(--card)}

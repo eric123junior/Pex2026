@@ -8,3 +8,6 @@ etl/raw/
 .claude/
 Thumbs.db
 .DS_Store
+
+# exportacoes do Power BI da ABVE: regeraveis com etl/export_powerbi_abve.py
+data/powerbi_abve/
