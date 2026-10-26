@@ -32,6 +32,7 @@
     <a href="#modelos">Modelos</a>
     <a href="#categorias">Categorias</a>
     <a href="#fontes">Fontes</a>
+    <a href="#sobre">Sobre</a>
     <a href="#faq">FAQ</a>
     <a href="#contato" class="nav-cta">Contato</a>
   </nav>
@@ -653,13 +654,81 @@
       <p class="tag">Stack</p>
       <h2>Tecnologia <em>usada</em></h2>
       <div class="chips">
-        <span>GitHub Pages</span><span>Python 3</span><span>SQLite</span>
+        <span>Vercel</span><span>Python 3</span><span>SQLite</span>
         <span>MapLibre GL</span><span>OpenFreeMap</span><span>Overpass API</span>
         <span>Open-Meteo</span><span>Power BI</span><span>Licença MIT</span>
       </div>
       <p class="note">Sem framework e sem build: o site é HTML, CSS e JavaScript puros.
         A única dependência externa do navegador é a biblioteca do mapa.</p>
+      <article class="ia-bio">
+        <p class="ia-bio-tag">Inteligência artificial</p>
+        <h3>Claude <span>· Anthropic</span></h3>
+        <p>Assistente de IA usado no <b>layout</b> do site: ajudou a escrever e organizar
+          o CSS — espaçamentos, grade das seções, cores e adaptação para celular.</p>
+      </article>
     </div>
+  </div>
+</section>
+
+<!-- ============ SOBRE O PROJETO ============ -->
+<section class="section" id="sobre">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="tag">Sobre o projeto</p>
+      <h2>Da ideia aos <em>dados</em></h2>
+      <p class="lead">O SustAmbiTech BI é um projeto de extensão universitária (PEX) que dá
+        continuidade ao SustAmbiTech, plataforma de tecnologia para a sustentabilidade ambiental
+        criada por estudantes da UniDrummond. Pegamos um dos tópicos do projeto original —
+        <b>mobilidade sustentável</b> — e o transformamos em inteligência de dados.</p>
+    </header>
+
+    <div class="sobre-grid">
+      <article class="sobre-item reveal">
+        <h3>Missão</h3>
+        <p>Mostrar, com dados públicos e verificáveis, onde o Brasil está na eletromobilidade:
+          quantos eletropostos existem, onde ficam, quanto custam os veículos e como o mercado evolui.</p>
+      </article>
+      <article class="sobre-item reveal">
+        <h3>Objetivos</h3>
+        <ul class="list">
+          <li>Reunir fontes dispersas num só lugar, com crédito a cada origem</li>
+          <li>Tornar os números acessíveis a quem não usa Power BI</li>
+          <li>Manter tudo reproduzível: qualquer pessoa roda o pipeline</li>
+          <li>Apoiar a decisão de quem pensa em migrar para um elétrico</li>
+        </ul>
+      </article>
+      <article class="sobre-item reveal">
+        <h3>Metodologia</h3>
+        <p>Coleta automatizada em Python, normalização num banco SQLite e publicação como site
+          estático. Cada execução grava um snapshot datado, então toda tela diz de quando são
+          os dados.</p>
+      </article>
+    </div>
+
+    <h3 class="sub reveal" style="margin-top:3rem">Características</h3>
+    <div class="chips reveal">
+      <span>Dados abertos</span><span>Fontes creditadas</span><span>Sem cadastro</span>
+      <span>Sem cookies</span><span>Contraste AAA</span><span>Responsivo</span>
+      <span>Código aberto (MIT)</span><span>Pipeline reproduzível</span>
+    </div>
+
+    <h3 class="sub reveal" style="margin-top:3rem">Processo de desenvolvimento</h3>
+    <ol class="passos">
+      <li class="reveal"><b>Diagnóstico</b><p>Levantamento das fontes sobre mobilidade elétrica no Brasil e do que já existia no SustAmbiTech original.</p></li>
+      <li class="reveal"><b>Planejamento</b><p>Escolha das seções — mapa, modelos, categorias, dashboards — e do modelo de dados que alimenta site e Power BI.</p></li>
+      <li class="reveal"><b>Desenvolvimento</b><p>Coletores em Python, banco SQLite, site em HTML, CSS e JavaScript puros e mapa próprio em MapLibre.</p></li>
+      <li class="reveal"><b>Validação</b><p>Conferência dos números contra as fontes, testes em celular e publicação contínua na Vercel.</p></li>
+    </ol>
+
+    <figure class="mapa-mental reveal">
+      <a href="assets/img/mapa-mental-sustambitech.png" target="_blank" rel="noopener">
+        <img src="assets/img/mapa-mental-sustambitech.png" width="1920" height="1080" loading="lazy"
+          alt="Mapa mental do SustAmbiTech: serviços sustentáveis ao centro, ligados a monitoramento ambiental, economia de energia, reciclagem inteligente, mobilidade sustentável, consumo consciente, educação verde e políticas e legislação; ao redor, interface, principais tópicos, fontes e autenticação de usuário.">
+      </a>
+      <figcaption>Mapa mental do projeto original SustAmbiTech
+        (<a href="https://github.com/KayhamCristoffer/SustAmbiTech" target="_blank" rel="noopener">repositório de referência</a>).
+        Este site aprofunda o tópico <b>Mobilidade Sustentável</b>. Clique para ampliar.</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -669,35 +738,41 @@
     <header class="sec-head reveal">
       <p class="tag">Quem mantém</p>
       <h2>A equipe por trás <em>da plataforma</em></h2>
-      <p class="lead">Cinco frentes de trabalho, da coleta de dados à publicação.</p>
+      <p class="lead">Quatro integrantes, da coleta de dados à publicação.</p>
     </header>
 
-    <!-- PREENCHER: troque "Nome a definir" pelo nome de cada integrante. -->
     <div class="team">
       <article class="member reveal">
-        <p class="member-nome">Nome a definir</p>
-        <h3>Arquitetura e revisão de código</h3>
-        <p>Define o desenho técnico, o roadmap e revisa o que entra no repositório.</p>
+        <p class="member-nome">Leandro Gama dos Santos</p>
+        <p class="member-ra">RA 252005142</p>
+        <div class="member-acoes">
+          <!-- PREENCHER: link do portfólio de Leandro -->
+          <a class="btn btn-ghost pequeno" href="#" target="_blank" rel="noopener"><span>Portfólio</span></a>
+        </div>
       </article>
       <article class="member reveal">
-        <p class="member-nome">Nome a definir</p>
-        <h3>Desenvolvimento full stack</h3>
-        <p>Constrói o front-end, as integrações com as APIs e cuida da publicação.</p>
+        <p class="member-nome">Natan Arroyo</p>
+        <p class="member-ra">RA 252005106</p>
+        <div class="member-acoes">
+          <!-- PREENCHER: link do portfólio de Natan -->
+          <a class="btn btn-ghost pequeno" href="#" target="_blank" rel="noopener"><span>Portfólio</span></a>
+        </div>
       </article>
       <article class="member reveal">
-        <p class="member-nome">Nome a definir</p>
-        <h3>Business intelligence</h3>
-        <p>Modela os indicadores, escreve as medidas DAX e monta os painéis.</p>
+        <p class="member-nome">Eric Junior Santos</p>
+        <p class="member-ra">RA 251004675</p>
+        <div class="member-acoes">
+          <!-- PREENCHER: link do portfólio de Eric -->
+          <a class="btn btn-ghost pequeno" href="#" target="_blank" rel="noopener"><span>Portfólio</span></a>
+        </div>
       </article>
       <article class="member reveal">
-        <p class="member-nome">Nome a definir</p>
-        <h3>Engenharia de dados</h3>
-        <p>Mantém os coletores, os snapshots mensais e a qualidade da base.</p>
-      </article>
-      <article class="member reveal">
-        <p class="member-nome">Nome a definir</p>
-        <h3>Sustentabilidade e ESG</h3>
-        <p>Faz a curadoria temática e a leitura de impacto ambiental dos dados.</p>
+        <p class="member-nome">Gabriel Luz Gomes da Silva</p>
+        <p class="member-ra">RA 251004471</p>
+        <div class="member-acoes">
+          <!-- PREENCHER: link do portfólio de Gabriel -->
+          <a class="btn btn-ghost pequeno" href="#" target="_blank" rel="noopener"><span>Portfólio</span></a>
+        </div>
       </article>
     </div>
   </div>
@@ -855,10 +930,11 @@
     <div class="cta reveal">
       <div class="cta-orb" aria-hidden="true"></div>
       <h2>Contribua com o <em>projeto</em></h2>
-      <p>Bugs, sugestões de indicadores ou propostas de parceria: abra uma issue no repositório.
-        Forks e pull requests são bem-vindos.</p>
+      <p>Bugs, sugestões de indicadores ou propostas de parceria: abra uma issue no repositório
+        do site. O projeto original SustAmbiTech, que serviu de base, segue como referência.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="https://github.com/KayhamCristoffer/SustAmbiTech" target="_blank" rel="noopener"><span>Abrir no GitHub</span></a>
+        <a class="btn btn-primary" href="https://github.com/eric123junior/Pex2026" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg><span>GitHub do site</span></a>
+        <a class="btn btn-ghost" href="https://github.com/KayhamCristoffer/SustAmbiTech" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg><span>GitHub de referência</span></a>
         <a class="btn btn-ghost" href="#top"><span>Voltar ao topo</span></a>
       </div>
     </div>
